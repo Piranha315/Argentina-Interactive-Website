@@ -2,7 +2,8 @@
 
 An illustrated, interactive map of Argentina's economy, built for the EC 391 (International Trade) country project. The map shows where Argentina's main exports are produced, and a sourced "Civilopedia" below it covers the country profile, trade, comparative advantage, value chains, foreign investment, trade policy and a case study.
 
-- **Live page:** https://claude.ai/artifact/Wdapxc3nfTBc2QNLQhxMMm
+- **Live site:** https://piranha315.github.io/Argentina-Interactive-Website/
+- **Also on claude.ai:** https://claude.ai/artifact/Wdapxc3nfTBc2QNLQhxMMm
 - **Run it locally:** open `index.html` in a browser. It is a single self-contained file; only the fonts load from Google Fonts.
 
 ## What's on the map
