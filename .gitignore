@@ -1,0 +1,4 @@
+data/raw/naturalearth/
+.DS_Store
+__pycache__/
+*.pyc

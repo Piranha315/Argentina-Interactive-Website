@@ -1,0 +1,1406 @@
+<title>Argentina Trade Atlas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3CclipPath id='r'%3E%3Crect width='32' height='32' rx='6'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23r)'%3E%3Crect width='32' height='32' fill='%2374ACDF'/%3E%3Crect y='10.67' width='32' height='10.66' fill='%23fff'/%3E%3Cpath d='M21.30 16.00 19.18 16.34 19.18 15.66ZM20.25 17.76 18.81 17.54 19.07 16.90ZM19.75 19.75 18.01 18.49 18.49 18.01ZM17.76 20.25 16.90 19.07 17.54 18.81ZM16.00 21.30 15.66 19.18 16.34 19.18ZM14.24 20.25 14.46 18.81 15.10 19.07ZM12.25 19.75 13.51 18.01 13.99 18.49ZM11.75 17.76 12.93 16.90 13.19 17.54ZM10.70 16.00 12.82 15.66 12.82 16.34ZM11.75 14.24 13.19 14.46 12.93 15.10ZM12.25 12.25 13.99 13.51 13.51 13.99ZM14.24 11.75 15.10 12.93 14.46 13.19ZM16.00 10.70 16.34 12.82 15.66 12.82ZM17.76 11.75 17.54 13.19 16.90 12.93ZM19.75 12.25 18.49 13.99 18.01 13.51ZM20.25 14.24 19.07 15.10 18.81 14.46Z' fill='%23F6B40E' stroke='%2385340A' stroke-width='.35' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='3.1' fill='%23F6B40E' stroke='%2385340A' stroke-width='.45'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
+<style>
+/* Layout: a strategy-game screen. Yields ribbon on top; the hero is a raised hex-tile diorama of Argentina
+   floating on a game-board sea, flanked by a resource list and an info panel; below, a parchment
+   "Civilopedia" with a sticky lacquered chapter index. One visual world, deliberately single-theme. */
+:root{
+  color-scheme: light;
+  /* sea & lacquer (game chrome) */
+  --sea-deep:#164C6B; --sea:#2479A0; --sea-lite:#8FD0E0;
+  --lacquer:#12293A; --lacquer-2:#1C3D50; --gold:#D6A84A; --gold-lite:#F3D88E;
+  /* parchment (reading surfaces) */
+  --parch:#F1E4C4; --parch-2:#E6D3A5; --ink:#2A2016; --ink-2:#5A4833; --rule:#B6985F;
+  /* Argentina */
+  --celeste:#6FA9DB; --celeste-ink:#2D6A9E;
+  /* terrain (Catan-bright, tuned to sit together) */
+  --t-wheat:#E9B53B; --t-field:#B8C34A; --t-pasture:#86BD4C; --t-wet:#69AE6C; --t-jungle:#2C7539;
+  --t-forest:#3D7D46; --t-chaco:#A5A75A; --t-monte:#D9BA7D; --t-puna:#C8753E; --t-mtn:#9B968F;
+  --t-hills:#B98A53; --t-steppe:#CDB67D; --t-ice:#E6F2F3; --t-vine:#A3A651;
+  /* chart series */
+  --s1:#2D6A9E; --s2:#C0702F; --s3:#6E8E3A; --s4:#8A5A8C; --s5:#9A8A6A;
+  --good:#3F7D46; --bad:#A8432E;
+  --f-disp:"IM Fell English", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-sc:"IM Fell English SC", "IM Fell English", Georgia, serif;
+  --f-body:"Alegreya Sans", "Gill Sans", "Trebuchet MS", system-ui, sans-serif;
+  --bar-h:54px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--bar-h) + 12px)}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--sea-deep);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.55;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--lacquer)}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold-lite);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- yields ribbon ---------- */
+.ribbon{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:linear-gradient(var(--lacquer-2),var(--lacquer));
+  border-bottom:2px solid var(--gold);box-shadow:0 2px 0 #0b1a24, 0 6px 14px rgba(0,0,0,.35);color:var(--parch);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ribbon-in{display:flex;align-items:center;gap:22px;min-height:var(--bar-h)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex:none}
+.brand b{font-family:var(--f-disp);font-weight:400;font-size:22px;letter-spacing:.01em;color:var(--gold-lite)}
+.yields{display:flex;gap:18px;flex:none}
+.yield{display:flex;align-items:center;gap:7px;white-space:nowrap;font-variant-numeric:tabular-nums;cursor:help}
+.yield svg{flex:none}
+.yield strong{font-weight:700;font-size:16px;color:#fff}
+.yield span{font-size:13px;color:#c9d6dc}
+.chapnav{margin-left:auto;display:none;gap:2px;flex:none}
+.menu-btn{all:unset;box-sizing:border-box;margin-left:auto;flex:none;display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:4px;cursor:pointer;color:var(--gold-lite);font-size:15px;box-shadow:inset 0 0 0 1.5px rgba(214,168,74,.55)}
+.menu-btn:hover,.menu-btn[aria-expanded="true"]{background:rgba(214,168,74,.18)}
+.menu-btn:focus-visible{outline:3px solid #fff}
+.menu{position:absolute;top:calc(100% + 6px);right:max(16px,env(safe-area-inset-right,0px));width:min(300px,calc(100vw - 32px));padding:10px 8px;z-index:70}
+.menu ol{list-style:none;margin:0;padding:0;display:grid;gap:1px}
+.menu a{display:grid;grid-template-columns:34px 1fr;gap:4px;padding:8px 10px;border-radius:3px;text-decoration:none;font-size:16px;color:#e3ebee}
+.menu a span{font-family:var(--f-disp);color:var(--gold)}
+.menu a:hover,.menu a:focus-visible{background:rgba(214,168,74,.18);color:#fff;outline:none}
+.yields-strip{display:none;background:var(--lacquer);border-bottom:1px solid rgba(214,168,74,.45);color:var(--parch);
+  padding-block:9px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.yields-strip .yields{display:flex;flex-wrap:wrap;gap:8px 26px}
+@media (min-width:1760px){.chapnav{display:flex}.menu-btn{display:none}}
+@media (max-width:1299px){.yields-top{display:none}.yields-strip{display:block}}
+@media (max-width:600px){.yields-strip .yields{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}.menu-btn span{display:none}.brand b{font-size:19px}}
+@media (max-width:360px){.yields-strip .yields{grid-template-columns:1fr}.ribbon-in{gap:10px}.brand b{font-size:16px}.brand svg{width:24px;height:24px}}
+.chapnav a{font-size:14px;text-decoration:none;padding:6px 9px;border-radius:3px;color:#dfe8ea}
+.chapnav a:hover{background:rgba(214,168,74,.18);color:var(--gold-lite)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;background:radial-gradient(120% 80% at 55% 40%, var(--sea) 0%, var(--sea-deep) 75%);
+  display:grid;grid-template-columns:260px minmax(0,1fr) 370px;gap:0;height:clamp(660px, calc(100vh - var(--bar-h)), 1000px);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.side{padding-block:22px;display:flex;flex-direction:column;gap:14px;min-height:0;z-index:3}
+.intro{color:#eaf3f5}
+.intro h1{font-family:var(--f-disp);font-weight:400;font-size:46px;line-height:1;margin:0 0 6px;color:#fff;text-wrap:balance;
+  text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.intro p{margin:0;font-size:15px;line-height:1.45;color:#d6e6eb;max-width:30ch}
+.panel{background:linear-gradient(var(--lacquer-2),var(--lacquer));border:1px solid #0a1822;border-radius:6px;
+  box-shadow:inset 0 0 0 2px rgba(214,168,74,.55), inset 0 0 0 5px var(--lacquer), inset 0 0 0 6px rgba(214,168,74,.25), 0 10px 26px rgba(0,0,0,.35);color:#e8eef0}
+.legend{padding:12px 10px;overflow:auto;min-height:0}
+.legend h2{font-family:var(--f-disp);font-weight:400;font-size:19px;color:var(--gold-lite);margin:2px 6px 8px}
+.legend ul{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:2px}
+.lg-btn{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:10px;width:100%;padding:5px 6px;border-radius:4px;cursor:pointer;font-size:15px;line-height:1.2}
+.lg-btn:hover{background:rgba(255,255,255,.06)}
+.lg-btn[aria-pressed="true"]{background:rgba(214,168,74,.2);color:#fff}
+.lg-btn small{display:block;color:#9fb4bd;font-size:12.5px}
+.lg-btn:focus-visible{outline:2px solid var(--gold-lite)}
+.roundel{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%, var(--c2), var(--c1));box-shadow:0 0 0 2px var(--gold), 0 0 0 3px #0a1822}
+.roundel svg{width:19px;height:19px}
+.roundel.flagged{background:#fff;overflow:hidden}
+.roundel.flagged > svg{width:100% !important;height:100% !important;display:block}
+
+.stage{position:relative;min-width:0;min-height:0;overflow:hidden}
+.stage svg.map{touch-action:pan-y}
+.stage.zoomed svg.map{touch-action:none}
+.stage svg.map:focus-visible{outline:3px solid var(--gold-lite);outline-offset:-3px}
+.stage svg.map{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;user-select:none;-webkit-user-select:none}
+.stage.dragging svg.map{cursor:grabbing}
+.cloud{position:absolute;pointer-events:none;border-radius:50%;filter:blur(2px);opacity:.9;
+  background:radial-gradient(closest-side, rgba(255,255,255,.95), rgba(255,255,255,.75) 55%, rgba(255,255,255,0));
+  animation:drift 80s ease-in-out infinite alternate}
+.cloud::before,.cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
+.cloud::before{width:70%;height:90%;left:-30%;top:18%}
+.cloud::after{width:60%;height:80%;right:-26%;top:28%}
+@keyframes drift{to{transform:translateX(60px)}}
+.cloud{transition:opacity .4s}.stage.zoomed .cloud{opacity:.12}
+@media (prefers-reduced-motion: reduce){.cloud{animation:none}}
+.zoom{position:absolute;right:12px;bottom:14px;display:flex;flex-direction:column;gap:6px;z-index:4}
+.zoom button{all:unset;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;cursor:pointer;color:var(--gold-lite);font-size:20px;
+  background:var(--lacquer);box-shadow:0 0 0 2px var(--gold),0 4px 10px rgba(0,0,0,.4)}
+.zoom button:focus-visible{outline:3px solid #fff}
+.zoom button:disabled{opacity:.45;cursor:default}
+.zoom #zfull{margin-bottom:6px}
+.minimap{position:absolute;left:12px;bottom:14px;z-index:4;width:84px;height:151px;border-radius:4px;cursor:pointer;touch-action:none;
+  box-shadow:0 0 0 2px var(--gold),0 0 0 3px #0a1822,0 6px 14px rgba(0,0,0,.4);opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none}
+.stage.zoomed .minimap{opacity:1;transform:none;pointer-events:auto}
+.hint,.cartouche{transition:opacity .3s}.stage.zoomed .hint,.stage.zoomed .cartouche{opacity:0}
+@media (prefers-reduced-motion: reduce){.minimap{transition:none}}
+.hint{position:absolute;right:62px;bottom:16px;white-space:nowrap;z-index:4;font-size:13px;color:#e3f0f4;background:rgba(18,41,58,.72);padding:5px 10px;border-radius:14px}
+
+.info{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.info-head > div:not(.roundel){min-width:0}
+.info-head h2{overflow-wrap:anywhere}
+.info-head .close{all:unset;box-sizing:border-box;margin-left:auto;align-self:flex-start;flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;cursor:pointer;color:var(--gold-lite);box-shadow:inset 0 0 0 1.5px rgba(214,168,74,.6)}
+.info-head .close:hover{background:rgba(214,168,74,.18)}
+.info-head .close:focus-visible{outline:3px solid #fff}
+.hero.no-info{grid-template-columns:260px minmax(0,1fr) 0}
+.hero.no-info > .side:last-child{display:none}
+.hero.map-only{grid-template-columns:minmax(0,1fr)}
+.hero.map-only > .side:first-child{display:none}
+.hero.map-only > .side:last-child{position:absolute;top:16px;right:max(16px,env(safe-area-inset-right,0px));width:min(360px,calc(100% - 32px));max-height:calc(100% - 32px);padding-block:0;z-index:6}
+.hero.map-only.no-info > .side:last-child{display:none}
+.hero:fullscreen{height:100%;width:100%}
+.info-head{display:flex;gap:14px;align-items:center;padding:18px 18px 12px;border-bottom:1px solid rgba(214,168,74,.35)}
+.info-head .roundel{width:58px;height:58px}
+.info-head .roundel svg{width:32px;height:32px}
+.info-head h2{font-family:var(--f-disp);font-weight:400;font-size:27px;line-height:1.05;margin:0;color:#fff}
+.info-head p{margin:3px 0 0;font-size:14px;color:#a9c0c9}
+.info-body{padding:14px 18px 18px;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.bigfig strong{display:block;font-family:var(--f-disp);font-weight:400;font-size:40px;line-height:1;color:var(--gold-lite);font-variant-numeric:lining-nums}
+.bigfig span{display:block;font-size:14px;color:#c6d5da;margin-top:6px}
+.yieldlist{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:1px solid rgba(255,255,255,.1)}
+.yieldlist li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.yieldlist .k{font-size:14.5px;color:#e8eef0}
+.yieldlist .v{font-weight:700;color:#fff;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.yieldlist .s{grid-column:1/-1;font-size:12px;color:#8fa8b2}
+.lens{font-size:14.5px;line-height:1.5;color:#dbe6ea;background:rgba(255,255,255,.05);border-left:3px solid var(--celeste);padding:10px 12px;margin:0}
+.lens b{color:#fff;font-weight:500}
+.goto{align-self:flex-start;font-size:15px;color:var(--lacquer);background:var(--gold);padding:8px 14px;border-radius:3px;text-decoration:none;font-weight:500;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+.goto:hover{background:var(--gold-lite)}
+
+/* map text */
+.mlabel{font-family:var(--f-disp);fill:#1f170e;paint-order:stroke;stroke:rgba(246,236,208,.92);stroke-width:4.2px;stroke-linejoin:round}
+.mregion{font-family:var(--f-disp);font-style:italic;fill:#3b2c1b;opacity:.82;paint-order:stroke;stroke:rgba(255,246,220,.65);stroke-width:3px;letter-spacing:.06em}
+.mcountry{font-family:var(--f-sc);fill:#33291b;letter-spacing:.28em;paint-order:stroke;stroke:#efe9c8;stroke-width:5px;stroke-linejoin:round}
+.mcountry.over-sea{fill:#f6edd3;stroke:#123f5a;stroke-opacity:.7}
+.msea{font-family:var(--f-disp);font-style:italic;fill:#d9f0f6;opacity:.85;letter-spacing:.18em}
+.mk{cursor:pointer}
+.mk .ring{fill:none;stroke:var(--gold-lite);stroke-width:3;opacity:0}
+.mk.on .ring{opacity:1;animation:pulse 1.8s ease-out infinite}
+.mk:focus{outline:none}
+.mk:focus-visible .rim{stroke:#fff;stroke-width:4}
+@keyframes pulse{from{transform:scale(1);opacity:.95}to{transform:scale(1.7);opacity:0}}
+@media (prefers-reduced-motion: reduce){.mk.on .ring{animation:none;opacity:1}}
+.mk .ring{transform-box:fill-box;transform-origin:center}
+.city{cursor:pointer}
+.city:focus{outline:none}
+.city:hover rect,.city:focus-visible rect,.city.on rect{fill:#F3D88E;stroke-width:2.4}
+.city:hover text,.city.on text{fill:#000}
+.city:focus-visible text{text-decoration:underline}
+
+/* ---------- civilopedia ---------- */
+.pedia{background:var(--parch);background-image:
+  radial-gradient(1200px 500px at 10% 0%, rgba(255,255,255,.35), transparent 60%),
+  radial-gradient(900px 600px at 100% 100%, rgba(150,110,50,.12), transparent 60%);
+  border-top:6px solid var(--lacquer);box-shadow:inset 0 3px 0 var(--gold);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.pedia-in{max-width:1220px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:48px;padding-block:56px 80px}
+.toc{position:sticky;top:calc(var(--bar-h) + env(safe-area-inset-top,0px) + 18px);align-self:start;padding:14px 8px}
+.toc h2{font-family:var(--f-disp);font-weight:400;font-size:21px;color:var(--gold-lite);margin:0 10px 8px}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:1px}
+.toc a{display:grid;grid-template-columns:34px 1fr;gap:4px;padding:6px 10px;border-radius:3px;text-decoration:none;font-size:15px;color:#dbe5e8}
+.toc a span{font-family:var(--f-disp);color:var(--gold)}
+.toc a:hover,.toc a.cur{background:rgba(214,168,74,.18);color:#fff}
+article{min-width:0;max-width:800px}
+.chapter{padding-block:8px 46px;border-bottom:1px solid var(--rule)}
+.chapter + .chapter{padding-top:46px}
+.chapter:last-child{border-bottom:0}
+.ch-num{font-family:var(--f-disp);font-size:20px;color:var(--ink-2);margin:0}
+.chapter h2{font-family:var(--f-disp);font-weight:400;font-size:44px;line-height:1.05;margin:2px 0 14px;text-wrap:balance;color:var(--ink)}
+.chapter h3{font-family:var(--f-disp);font-weight:400;font-size:26px;line-height:1.15;margin:34px 0 10px;color:var(--ink);text-wrap:balance}
+.lede{font-size:20px;line-height:1.5;color:var(--ink-2);max-width:62ch;margin:0 0 8px}
+article p{max-width:66ch}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:0;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);margin:22px 0}
+.facts div{padding:10px 12px 10px 0;border-bottom:1px dotted var(--rule)}
+.facts dt{font-size:13.5px;color:var(--ink-2)}
+.facts dd{margin:0;font-family:var(--f-disp);font-size:21px;line-height:1.2}
+.timeline{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:0;border-left:2px solid var(--rule)}
+.timeline li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:16px;padding:10px 0 10px 18px;position:relative}
+.timeline li::before{content:"";position:absolute;left:-7px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--parch);border:2px solid var(--ink-2)}
+.timeline li.ch8::before{background:var(--celeste);border-color:var(--celeste-ink)}
+.timeline b{font-family:var(--f-disp);font-weight:400;font-size:19px}
+.timeline p{margin:0}
+.plate{margin:26px 0;padding:18px 18px 14px;background:rgba(255,252,240,.55);border:1px solid var(--ink-2);box-shadow:0 0 0 4px var(--parch),0 0 0 5px var(--rule)}
+.plate h4{font-family:var(--f-disp);font-weight:400;font-size:20px;margin:0 0 2px}
+.plate .sub{font-size:14px;color:var(--ink-2);margin:0 0 10px}
+.plate svg{display:block;width:100%;height:auto;overflow:visible}
+.plate figcaption,.src{font-size:13px;line-height:1.45;color:var(--ink-2);margin-top:10px;max-width:none}
+.chart text{font-family:var(--f-body);font-size:12px;fill:var(--ink-2)}
+.chart .ax{stroke:var(--ink-2);stroke-width:1}
+.chart .grid{stroke:var(--rule);stroke-width:.6;stroke-dasharray:2 3}
+.chart .lab{font-size:12.5px;fill:var(--ink)}
+.keyrow{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13.5px;margin:0 0 8px}
+.keyrow i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.scroll-x{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+thead th{font-weight:500;font-size:13.5px;color:var(--ink-2);border-bottom:2px solid var(--ink)}
+td.n,th.n{text-align:right}
+tr.me td{font-weight:700}
+.rca td.h{text-align:center;font-weight:500}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:22px}
+.note{background:var(--parch-2);padding:14px 16px;border-left:4px solid var(--ink-2);margin:20px 0;max-width:66ch}
+.note p{margin:6px 0 0}
+.note strong:first-child{font-family:var(--f-disp);font-weight:400;font-size:19px;display:block}
+.ch8tag{display:inline-block;font-size:13px;font-weight:500;color:#fff;background:var(--celeste-ink);padding:2px 8px;border-radius:10px;vertical-align:3px}
+.gap{color:var(--bad);font-style:italic}
+.chains{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:12px;margin:18px 0}
+.chain{border:1px solid var(--rule);padding:12px 14px;background:rgba(255,252,240,.5)}
+.chain b{font-family:var(--f-disp);font-weight:400;font-size:19px;display:block}
+.chain .pos{font-size:13px;font-weight:500;color:var(--celeste-ink)}
+.chain p{margin:6px 0 0;font-size:15px}
+.widget{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:20px;align-items:start}
+.ctrl{display:grid;gap:12px;font-size:14.5px}
+.ctrl label{display:grid;gap:4px}
+.ctrl input[type=range]{width:100%;accent-color:var(--celeste-ink)}
+.ctrl output{font-weight:700;font-variant-numeric:tabular-nums}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{font:inherit;font-size:13.5px;border:1px solid var(--ink-2);background:transparent;color:var(--ink);padding:5px 9px;border-radius:3px;cursor:pointer}
+.presets button:hover{background:var(--parch-2)}
+.verdict{font-size:15px;background:var(--lacquer);color:#e9f0f2;padding:10px 12px;border-radius:3px;margin:0}
+.verdict b{color:var(--gold-lite);font-weight:500}
+.score{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:0;border-top:2px solid var(--ink);margin:18px 0}
+.score div{padding:10px 12px 10px 0;border-bottom:1px dotted var(--rule)}
+.score dt{font-size:13.5px;color:var(--ink-2)}
+.score dd{margin:0;font-family:var(--f-disp);font-size:24px}
+.srclist{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.srclist li{max-width:70ch}
+.srclist b{font-weight:700}
+.tag{font-size:12px;font-weight:500;border:1px solid var(--ink-2);border-radius:9px;padding:0 7px;margin-left:6px;color:var(--ink-2)}
+footer{background:var(--lacquer);color:#b8c8ce;font-size:14px;padding-block:22px;text-align:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* ---------- responsive ---------- */
+.grab,.info-head .more{display:none}
+/* Below 1180px the details become a bottom sheet over the map (moved into .stage by script). */
+@media (max-width:1179px){
+  .hero,.hero.no-info,.hero.map-only{display:flex;flex-direction:column;height:auto;padding-block:0 18px}
+  .hero > .side:first-child{display:contents}
+  .intro{order:0;padding-block:14px 10px}
+  .intro h1{font-size:36px}
+  .intro p{font-size:15px}
+  .intro p{max-width:60ch}
+  .legend{order:1;overflow:visible;padding:8px 8px 6px;margin-block:14px 12px}
+  .legend h2{display:none}
+  #lg-cap,#lg-city,#lg-city + h2{display:none}
+  .legend ul{display:flex;overflow-x:auto;gap:6px;padding-bottom:4px;margin:0;scrollbar-width:thin;scrollbar-color:rgba(214,168,74,.55) transparent}
+  .legend ul + h2 + ul{margin-top:6px}
+  .legend li{flex:none}
+  .lg-btn{width:auto;padding:4px 12px 4px 4px;background:rgba(255,255,255,.05);border-radius:20px}
+  .lg-btn .roundel{width:28px;height:28px}
+  .lg-btn small{display:none}
+  .stage{order:2;height:clamp(460px, min(150vw, calc(100vh - 150px)), 980px);border-radius:6px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+  @supports (height:100svh){.stage{height:clamp(460px, min(150vw, calc(100svh - 150px)), 980px)}}
+  .cloud{opacity:.6}
+  .cloud:nth-of-type(n+2){display:none}
+  /* the sheet */
+  .stage > .sheet{position:absolute;left:0;right:0;bottom:0;z-index:7;padding:0;display:flex;flex-direction:column;max-height:88%;
+    transform:translateY(calc(100% - var(--peek,170px)));transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s;will-change:transform}
+  .stage > .sheet .info{flex:1 1 auto;min-height:0;border-radius:14px 14px 0 0;border-bottom:0}
+  .hero.sheet-full .stage > .sheet{transform:translateY(0)}
+  .hero.no-info .stage > .sheet{transform:translateY(100%);visibility:hidden;transition:transform .25s ease-in,visibility 0s .25s}
+  .stage > .sheet.dragging{transition:none}
+  .grab{display:block;width:44px;height:5px;border-radius:3px;background:rgba(243,216,142,.55);margin:8px auto 0;flex:none}
+  .sheet .info-head{padding:8px 14px 10px;gap:12px;cursor:grab;touch-action:none}
+  .sheet .info-head .roundel{width:46px;height:46px}
+  .sheet .info-head .roundel svg{width:26px;height:26px}
+  .sheet .info-head h2{font-size:23px}
+  .info-head .more{all:unset;box-sizing:border-box;display:block;margin-left:auto;align-self:center;flex:none;padding:6px 12px;border-radius:16px;font-size:14px;cursor:pointer;color:var(--lacquer);background:var(--gold)}
+  .info-head .more:focus-visible{outline:3px solid #fff}
+  .info-head .more + .close{margin-left:6px;align-self:center}
+  .sheet .info-body{padding:10px 14px 18px;overscroll-behavior:contain}
+  .sheet .bigfig strong{font-size:32px}
+  .hero:not(.no-info) .stage .zoom,.hero:not(.no-info) .stage .minimap{bottom:calc(var(--peek,170px) + 12px)}
+  .hero.sheet-full .stage .zoom,.hero.sheet-full .stage .minimap{opacity:0;pointer-events:none}
+  .hero:not(.no-info) .stage .hint{opacity:0}
+  .zoom,.minimap{transition:bottom .3s,opacity .2s}
+  .hero.map-only > .side:first-child{display:none}
+}
+@media (max-width:1179px) and (prefers-reduced-motion: reduce){.stage > .sheet,.zoom,.minimap{transition:none}}
+@media (max-width:900px){
+  .intro h1{font-size:40px}
+  .pedia-in{grid-template-columns:minmax(0,1fr);gap:20px;padding-block:32px 56px}
+  .toc{position:static}
+  .toc ol{grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr))}
+  .chapter h2{font-size:36px}
+  .widget{grid-template-columns:minmax(0,1fr)}
+  .timeline li{grid-template-columns:minmax(0,1fr);gap:2px}
+}
+</style>
+
+<header class="ribbon" aria-label="Site header">
+  <div class="ribbon-in">
+    <a class="brand" href="#top" aria-label="Argentina Trade Atlas, back to the map">
+      <svg width="30" height="30" viewBox="0 0 40 40" aria-hidden="true"><g fill="#F3D88E"><circle cx="20" cy="20" r="8"/><g id="rays"></g></g></svg>
+      <b>Argentina Trade Atlas</b>
+    </a>
+    <div class="yields yields-top" aria-label="Key figures"></div>
+    <nav class="chapnav" aria-label="Chapters"></nav>
+    <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="menu">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Chapters</span>
+    </button>
+  </div>
+  <nav class="menu panel" id="menu" aria-label="Chapters menu" hidden><ol id="menu-list"></ol></nav>
+</header>
+<div class="yields-strip"><div class="yields" aria-label="Key figures"></div></div>
+
+<section class="hero" id="top" aria-label="Interactive resource map">
+  <div class="side">
+    <h1 class="sr">Argentina Trade Atlas</h1>
+    <div class="panel legend">
+      <h2>Places</h2>
+      <ul id="lg-cap"></ul>
+      <h2>Resources</h2>
+      <ul id="lg-res"></ul>
+      <h2>Neighbours</h2>
+      <ul id="lg-par"></ul>
+      <h2>Cities</h2>
+      <ul id="lg-city"></ul>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <svg class="map" id="map" role="group" tabindex="0" aria-label="Map of Argentina with resource sites. Use plus and minus to zoom, arrow keys to move, 0 to reset."></svg>
+    <svg class="minimap" id="minimap" aria-label="Overview map: click to move the view" role="img" preserveAspectRatio="none"></svg>
+    <div class="cloud" style="width:180px;height:70px;left:4%;top:8%" aria-hidden="true"></div>
+    <div class="cloud" style="width:220px;height:80px;right:2%;top:46%;animation-duration:110s" aria-hidden="true"></div>
+    <div class="cloud" style="width:150px;height:60px;left:3%;bottom:34%;animation-duration:95s" aria-hidden="true"></div>
+    <div class="zoom">
+      <button type="button" id="zfull" aria-label="Show full map" aria-pressed="false" title="Full map (hide panels)"></button>
+      <button type="button" id="zin" aria-label="Zoom in">+</button>
+      <button type="button" id="zout" aria-label="Zoom out">&minus;</button>
+      <button type="button" id="zreset" aria-label="Show the whole country" style="font-size:15px">&#8634;</button>
+    </div>
+    <p class="hint" id="hint"></p>
+  </div>
+  <div class="side" id="info-side">
+    <div class="panel info" aria-live="polite">
+      <div class="grab" aria-hidden="true"></div>
+      <div class="info-head"><div class="roundel" id="i-icon"></div><div><h2 id="i-name"></h2><p id="i-region"></p></div><button type="button" class="more" id="i-more" aria-expanded="false" aria-controls="i-body">Details</button><button type="button" class="close" id="i-close" aria-label="Close details"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
+      <div class="info-body" id="i-body">
+        <div class="bigfig"><strong id="i-big"></strong><span id="i-biglab"></span></div>
+        <ul class="yieldlist" id="i-stats"></ul>
+        <p class="lens" id="i-note"></p>
+        <a class="goto" id="i-go" href="#"></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pedia" aria-label="The atlas">
+  <div class="pedia-in">
+    <nav class="toc panel" aria-label="Atlas chapters">
+      <h2>Civilopedia</h2>
+      <ol id="toc">
+        <li><a href="#ch-profile"><span>I</span>Country profile</a></li>
+        <li><a href="#ch-macro"><span>II</span>Macro &amp; institutions</a></li>
+        <li><a href="#ch-trade"><span>III</span>Openness &amp; trade</a></li>
+        <li><a href="#ch-rca"><span>IV</span>Comparative advantage</a></li>
+        <li><a href="#ch-gvc"><span>V</span>Value chains</a></li>
+        <li><a href="#ch-fdi"><span>VI</span>Foreign investment</a></li>
+        <li><a href="#ch-policy"><span>VII</span>Trade policy</a></li>
+        <li><a href="#ch-case"><span>IX</span>Case study</a></li>
+        <li><a href="#ch-sources"><span>&sect;</span>Sources &amp; methods</a></li>
+      </ol>
+    </nav>
+    <article>
+
+<!-- I -->
+<section class="chapter" id="ch-profile">
+  <p class="ch-num">Chapter I</p>
+  <h2>Country profile</h2>
+  <p class="lede">The eighth-largest country by land area, running 3,700 km from the subtropical Chaco to Tierra del Fuego. About a third of its people live in Greater Buenos Aires.</p>
+  <dl class="facts">
+    <div><dt>Capital</dt><dd>Buenos Aires</dd></div>
+    <div><dt>Official language</dt><dd>Spanish</dd></div>
+    <div><dt>Land area (WDI, 2024)</dt><dd>2.74 million km²</dd></div>
+    <div><dt>Population (WDI, 2025)</dt><dd>45.9 million</dd></div>
+    <div><dt>Political system</dt><dd>Federal presidential republic</dd></div>
+    <div><dt>Subdivisions</dt><dd>23 provinces + the City of Buenos Aires</dd></div>
+    <div><dt>Currency</dt><dd>Argentine peso (ARS)</dd></div>
+    <div><dt>Memberships</dt><dd>Mercosur, G20, WTO (1995)</dd></div>
+  </dl>
+  <h3>Structural breaks, 1880–2025</h3>
+  <ol class="timeline">
+    <li><b>1880–1930</b><p><strong>Agro-export boom.</strong> British-built railways and European migrants open the Pampa. Argentina becomes a "granary of the world", the textbook land-abundant Heckscher-Ohlin exporter.</p></li>
+    <li class="ch8"><b>1930–1976</b><p><strong>Import-substitution industrialization.</strong> Tariffs, import licences and cheap credit shelter infant industries behind high walls. This is the policy our Ch. 8 lecture used as its Argentine example. <span class="ch8tag">Ch. 8</span></p></li>
+    <li><b>1991</b><p><strong>Convertibility and Mercosur.</strong> The peso is pegged one-to-one to the dollar, tariffs fall, and the Treaty of Asunción creates Mercosur.</p></li>
+    <li><b>2001–02</b><p><strong>Default and devaluation.</strong> The peg collapses. A commodity-price boom then drives growth of 8–9% a year through 2007.</p></li>
+    <li><b>2011–2023</b><p><strong>Stagnation.</strong> Capital controls (the <i>cepo</i>), repeated recessions, an IMF program in 2018 and accelerating inflation.</p></li>
+    <li><b>2024–</b><p><strong>Stabilization and opening.</strong> Fiscal adjustment, the RIGI investment regime (Ley 27.742), currency controls eased in 2025, and new trade frameworks with the EU and the US.</p></li>
+  </ol>
+  <h3>Human development against the region</h3>
+  <p>Argentina's Human Development Index is <strong>0.865</strong>, rank <strong>47 of 193</strong>, in the "very high" group (UNDP Human Development Report 2025, 2023 data).</p>
+  <figure class="plate">
+    <h4>Table 1. Social indicators, latest year</h4>
+    <div class="scroll-x"><table>
+      <thead><tr><th>Country</th><th class="n">Life expectancy (yrs, 2024)</th><th class="n">Tertiary enrolment (% gross, 2023)</th><th class="n">Gini (2024)</th><th class="n">Poverty, $3.00/day (%)</th><th class="n">GDP per capita (US$, 2025)</th></tr></thead>
+      <tbody>
+        <tr class="me"><td>Argentina</td><td class="n">77.5</td><td class="n">107.8</td><td class="n">42.4</td><td class="n">1.0</td><td class="n">14,898</td></tr>
+        <tr><td>Chile</td><td class="n">81.4</td><td class="n">110.2</td><td class="n">43.0</td><td class="n">0.4</td><td class="n">17,995</td></tr>
+        <tr><td>Uruguay</td><td class="n">78.3</td><td class="n">80.0</td><td class="n">40.0</td><td class="n">0.2</td><td class="n">25,216</td></tr>
+        <tr><td>Brazil</td><td class="n">76.0</td><td class="n">69.7</td><td class="n">50.3</td><td class="n">3.0</td><td class="n">10,713</td></tr>
+        <tr><td>Mexico</td><td class="n">75.3</td><td class="n">48.2</td><td class="n">42.6</td><td class="n">1.6</td><td class="n">13,889</td></tr>
+        <tr><td>Latin America &amp; Caribbean</td><td class="n">75.8</td><td class="n">58.9</td><td class="n">–</td><td class="n">4.3</td><td class="n">11,095</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption>Source: World Bank WDI (SP.DYN.LE00.IN, SE.TER.ENRR, SI.POV.GINI, SI.POV.DDAY, NY.GDP.PCAP.CD). Adult literacy is 99.1% (WDI, 2020). Enrolment above 100% reflects free, open-admission public universities that enrol students older than the reference age group. The World Bank now uses a $3.00/day (2021 PPP) extreme-poverty line, which replaces the $2.15 line named in the course guidelines.</figcaption>
+  </figure>
+</section>
+
+<!-- II -->
+<section class="chapter" id="ch-macro">
+  <p class="ch-num">Chapter II</p>
+  <h2>Macroeconomy, business climate &amp; institutions</h2>
+  <p class="lede">Twenty years of boom, bust and stop-go. Real GDP fell in 9 of the 21 years from 2005 to 2025, and dollar GDP in 2025 was only about 6% above its 2017 peak.</p>
+  <figure class="plate">
+    <h4>Figure 1. GDP and real growth, 2005–2025</h4>
+    <p class="sub">Bars: GDP, current US$ billion (left axis). Line: real GDP growth, % per year (right axis).</p>
+    <div id="fig-gdp"></div>
+    <figcaption>Source: World Bank WDI, NY.GDP.MKTP.CD and NY.GDP.MKTP.KD.ZG; chart by the team. Dollar GDP in high-inflation years is distorted by the official exchange rate.</figcaption>
+  </figure>
+  <dl class="facts">
+    <div><dt>GDP at PPP, 2025</dt><dd>$1.49 trillion</dd></div>
+    <div><dt>Real growth, 2025</dt><dd>+4.4%</dd></div>
+    <div><dt>CPI inflation, 2024</dt><dd>219.9% (133.5% in 2023)</dd></div>
+    <div><dt>Current account, 2025</dt><dd>−1.1% of GDP</dd></div>
+  </dl>
+  <p class="src">Source: World Bank WDI (NY.GDP.MKTP.PP.CD, NY.GDP.MKTP.KD.ZG, FP.CPI.TOTL.ZG, BN.CAB.XOKA.GD.ZS).</p>
+
+  <figure class="plate">
+    <h4>Figure 2. Worldwide Governance Indicators, 2025</h4>
+    <p class="sub">Governance score, 0–100 (higher is better), for Argentina and three neighbours.</p>
+    <div class="keyrow" id="wgi-key"></div>
+    <div id="fig-wgi"></div>
+    <figcaption>Source: World Bank Worldwide Governance Indicators, 2025 release (GOV_WGI_*.SC); chart by the team.</figcaption>
+  </figure>
+  <figure class="plate">
+    <h4>Table 2. Where Argentina ranks</h4>
+    <div class="scroll-x"><table>
+      <thead><tr><th>Index</th><th class="n">Argentina</th><th class="n">Rank</th></tr></thead>
+      <tbody>
+        <tr><td>Voice &amp; accountability (WGI)</td><td class="n">65.9</td><td class="n">3rd of 11</td></tr>
+        <tr><td>Political stability (WGI)</td><td class="n">68.4</td><td class="n">3rd of 11</td></tr>
+        <tr><td>Government effectiveness (WGI)</td><td class="n">58.0</td><td class="n">3rd of 11</td></tr>
+        <tr><td>Regulatory quality (WGI)</td><td class="n">53.9</td><td class="n">5th of 11</td></tr>
+        <tr><td>Rule of law (WGI)</td><td class="n">56.9</td><td class="n">3rd of 11</td></tr>
+        <tr><td>Control of corruption (WGI)</td><td class="n">40.3</td><td class="n">5th of 11</td></tr>
+        <tr><td>Corruption Perceptions Index 2025 (Transparency International)</td><td class="n">36 / 100</td><td class="n">104th of 182</td></tr>
+        <tr><td>Logistics Performance Index 2022 (World Bank)</td><td class="n">2.8 / 5</td><td class="n">LAC average 2.69</td></tr>
+        <tr><td>Doing Business 2020 (World Bank, discontinued)</td><td class="n">59.0</td><td class="n">126th of 190</td></tr>
+        <tr><td>Business Ready, B-READY (World Bank)</td><td class="n gap">to add</td><td class="n gap">to add</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption>WGI ranks are among 11 regional peers: Argentina, Bolivia, Brazil, Chile, Colombia, Ecuador, Mexico, Paraguay, Peru, Uruguay and Venezuela. Uruguay and Chile lead on every dimension. LPI: WDI LP.LPI.OVRL.XQ (Brazil 3.2, Chile 3.0, Uruguay 3.0). Transparency International is not a government source; the course guidelines require its CPI.</figcaption>
+  </figure>
+  <div class="note"><strong>What it means for trade and investment</strong>
+    <p>Argentina's institutions rank in the top third of South America, behind Uruguay and Chile, but corruption control and regulatory quality lag. Regulatory quality matters for trade through licensing and customs. For investors the bigger problem is policy reversal: the swings in Figure 1 are why RIGI promises legal stability in writing (Chapter VII).</p></div>
+</section>
+
+<!-- III -->
+<section class="chapter" id="ch-trade">
+  <p class="ch-num">Chapter III</p>
+  <h2>Openness &amp; trade patterns</h2>
+  <p class="lede">One of the most closed economies in the Americas. Trade was 41% of GDP in 2005 and 30% in 2025, while the Latin American average rose to 49%. Argentina sells goods at a surplus and buys services at a deficit.</p>
+  <figure class="plate">
+    <h4>Figure 3. Trade openness, 2005–2025</h4>
+    <p class="sub">(Exports + imports of goods and services) ÷ GDP, %.</p>
+    <div id="fig-open"></div>
+    <figcaption>Source: World Bank WDI, NE.TRD.GNFS.ZS. LAC is the Latin America &amp; Caribbean aggregate. Argentina is the lowest of the six series in 2025.</figcaption>
+  </figure>
+  <figure class="plate">
+    <h4>Figure 4. Goods and services balances, 2005–2025</h4>
+    <p class="sub">Balance-of-payments basis, current US$ billion.</p>
+    <div class="keyrow"><span><i style="background:var(--t-wheat)"></i>Goods</span><span><i style="background:var(--s2)"></i>Services</span></div>
+    <div id="fig-bal"></div>
+    <figcaption>Source: World Bank WDI (from IMF BoP), BX.GSR.MRCH.CD − BM.GSR.MRCH.CD and BX.GSR.NFSV.CD − BM.GSR.NFSV.CD; team calculation. The 2023 goods deficit reflects the historic drought.</figcaption>
+  </figure>
+  <figure class="plate">
+    <h4>Figure 5. What Argentina exports, 2004, 2014 and 2024</h4>
+    <p class="sub">Share of goods exports by HS group, %. Total exports in US$ billion at right.</p>
+    <div class="keyrow" id="comp-key"></div>
+    <div id="fig-comp"></div>
+    <figcaption>Source: UN Comtrade (HS, as reported by Argentina); grouping by the team. In 2024, 13.8% of exports were reported as confidential (HS 99). These are mostly commodities hidden at firm level, so "other" is overstated.</figcaption>
+  </figure>
+  <p><strong>The 20-year story.</strong> Manufactures rose during the 2000s boom (machinery and vehicles from 9.5% to 15.4% of exports by 2014), then fell back to 11.5%. Fuels collapsed after 2004 and are recovering with Vaca Muerta. The export base remains tied to the land.</p>
+  <figure class="plate">
+    <h4>Figure 6. Main trading partners, 2024</h4>
+    <p class="sub">Share of Argentina's goods exports and imports, %.</p>
+    <div class="split"><div id="fig-xp"></div><div id="fig-mp"></div></div>
+    <figcaption>Source: UN Comtrade, 2024, reported by Argentina. Herfindahl index computed by the team over all partners.</figcaption>
+  </figure>
+  <p><strong>Concentration.</strong> Exports are spread across partners: the Herfindahl index is 0.058 and the top two take 25%. Imports are more concentrated (HHI 0.113), with Brazil and China supplying 43%. Argentina depends on Brazil on both sides.</p>
+
+  <h3>Does Argentina's trade follow gravity?</h3>
+  <p>Yes, and closely. We regressed log exports to each partner on the partner's log GDP and log distance from Buenos Aires.</p>
+  <p class="note" style="font-family:var(--f-disp);font-size:20px;border-left-color:var(--celeste-ink)" id="grav-eq"></p>
+  <figure class="plate">
+    <h4>Figure 7. Exports against distance, 2024</h4>
+    <p class="sub">Each dot is a partner. Vertical: log exports adjusted for partner size (ln exports − 1.155 × ln GDP). Horizontal: distance between capitals, km (log scale).</p>
+    <div id="fig-grav"></div>
+    <figcaption>Method: OLS on 145 partners with positive 2024 exports (UN Comtrade) and GDP data (WDI 2024, current US$). Distance is great-circle distance between capitals from World Bank coordinates. Homoskedastic standard errors; no multilateral-resistance terms (single exporter).</figcaption>
+  </figure>
+  <p><strong>Both elasticities have the textbook sign and size.</strong> A 10% larger partner buys about 11.6% more, and 10% more distance cuts exports by about 14.5%. The class estimate on 2024 world data was −1.46 for distance; ours on Argentina alone is −1.45. Neighbours sit above the line, because Mercosur, a shared language and land borders add trade beyond what distance predicts. Vietnam and Malaysia are outliers too: they buy soymeal for livestock and aquaculture, comparative advantage pulling against distance.</p>
+</section>
+
+<!-- IV -->
+<section class="chapter" id="ch-rca">
+  <p class="ch-num">Chapter IV</p>
+  <h2>Specialization &amp; comparative advantage</h2>
+  <p class="lede">Balassa's revealed comparative advantage: RCA = (X<sub>i,k</sub> / X<sub>i</sub>) ÷ (X<sub>W,k</sub> / X<sub>W</sub>). Above 1, a country exports more of a good than its size in world trade predicts.</p>
+  <figure class="plate">
+    <h4>Table 3. RCA by HS chapter, 2023, Argentina and regional peers</h4>
+    <div class="scroll-x"><table class="rca" id="rca-table"></table></div>
+    <figcaption>Source: UN Comtrade, 2023 exports by reporter (167 reporters form the world total); RCA computed by the team. Shading: dark ≥ 10, mid 1–10, pale &lt; 1. 2023 is the latest year with near-complete reporter coverage, but also a drought year that depressed Argentine farm exports.</figcaption>
+  </figure>
+  <h3>Land-abundant, not mineral-rich</h3>
+  <figure class="plate">
+    <h4>Figure 8. Arable land per person, 2024</h4>
+    <p class="sub">Hectares per person.</p>
+    <div id="fig-land"></div>
+    <figcaption>Source: World Bank WDI, AG.LND.ARBL.HA.PC.</figcaption>
+  </figure>
+  <p>Argentina has six times the world's arable land per person. Yet natural-resource rents are only 2.7% of GDP (2021), against 16.9% for Chile and 7.9% for Brazil (WDI, NY.GDP.TOTL.RT.ZS). The World Bank's rent measure counts oil, gas, minerals and forests but not farmland. So Argentina is land-abundant rather than mineral-rich, and its RCAs line up with Heckscher-Ohlin: very high in land-intensive farm goods, near zero in capital- and skill-intensive machinery.</p>
+  <div class="note"><strong>Institutions as a source of comparative advantage <span class="ch8tag">Ch. 8 · Nunn 2007</span></strong>
+    <p>Nunn shows that countries with better contract enforcement specialize in goods that need relationship-specific inputs: machinery, electronics, vehicles. Argentina's rule-of-law score (56.9) trails Chile and Uruguay, and its top RCAs are in goods sold on organized exchanges at reference prices (soymeal, grains, vegetable oil), which need almost no relationship-specific contracting. Its RCA is 0.18 in machinery and 0.02 in electrical machinery. This pattern fits Nunn's prediction. Vehicles (RCA 1.5) are the exception, and they run inside multinationals that write their own contracts (Chapter VI).</p></div>
+  <h3>Has the pattern shifted?</h3>
+  <p>It has been stable at the top and has shifted at the margin. Farm RCAs dominate as before. Manufacturing's export share fell from 15.4% to 11.5% (2014–2024), leaving vehicles as the only manufacturing RCA above 1. Fuels (0.74) and lithium (24.7 for carbonate) are the new frontier, so Argentina is moving toward extractive commodities, not away from them. Firm-level exporter data (size, productivity) are not covered here because no comparable public microdata is available.</p>
+</section>
+
+<!-- V -->
+<section class="chapter" id="ch-gvc">
+  <p class="ch-num">Chapter V</p>
+  <h2>Position in global value chains</h2>
+  <p class="lede">Argentina sits at the upstream end of most chains. It sells soymeal, grain, crude and lithium carbonate that other countries turn into feed, fuel and batteries. The OECD counts it among the economies least integrated into GVCs, mainly because forward participation is low.</p>
+  <div class="chains">
+    <div class="chain"><b>Soy to feed</b><span class="pos">Upstream, with processing</span><p>Beans are crushed at home and shipped as meal, which becomes feed in Vietnam, Indonesia and Europe.</p></div>
+    <div class="chain"><b>Lithium to batteries</b><span class="pos">Far upstream</span><p>Carbonate is exported (RCA 24.7); refining and cell-making happen in Asia.</p></div>
+    <div class="chain"><b>Shale to fuels</b><span class="pos">Upstream</span><p>Crude and gas exports are rising: HS 27 was $7.6 billion in 2024.</p></div>
+    <div class="chain"><b>Autos in Mercosur</b><span class="pos">Downstream, high backward participation</span><p>Engines and parts come in; assembled pickups go to Brazil, through vertical multinationals (Ch. 6).</p></div>
+  </div>
+  <figure class="plate">
+    <h4>Figure 9. What Argentina imports to produce, 2024</h4>
+    <p class="sub">Top HS chapters, % of goods imports (US$ 60.8 billion).</p>
+    <div id="fig-mchap"></div>
+    <figcaption>Source: UN Comtrade, 2024, Argentina as reporter. Oilseed imports, largely from Paraguay, feed Argentina's own crushing plants: backward participation inside the soy chain.</figcaption>
+  </figure>
+  <p><strong>Value added versus gross exports.</strong> Argentina's main exports (farm goods, crude oil) use few imported inputs, so the foreign value-added share of its gross exports should be low, the opposite of an assembler like Mexico or Vietnam. <span class="gap">The exact OECD TiVA figures (foreign value-added share, EXGR_FVASH, and forward participation) still need to be added; the OECD site blocks automated download.</span> GVC ranking: OECD Economic Surveys: Argentina 2019, from TiVA.</p>
+</section>
+
+<!-- VI -->
+<section class="chapter" id="ch-fdi">
+  <p class="ch-num">Chapter VI</p>
+  <h2>Foreign direct investment</h2>
+  <p class="lede">Inflows averaged 1.9% of GDP over 2015–2024, about half of Brazil's 3.4% and well below Chile's 4.7%. The inward stock is $127.6 billion, about a fifth of GDP, and it sits mostly in factories and mines.</p>
+  <figure class="plate">
+    <h4>Figure 10. FDI inflows and outflows, 2005–2025</h4>
+    <p class="sub">% of GDP. Bars: net inflows. Line: net outflows (Argentine investment abroad).</p>
+    <div class="keyrow"><span><i style="background:var(--celeste)"></i>Inflows</span><span><i style="background:var(--s2)"></i>Outflows</span></div>
+    <div id="fig-fdi"></div>
+    <figcaption>Source: World Bank WDI, BX.KLT.DINV.WD.GD.ZS and BM.KLT.DINV.WD.GD.ZS. The 2023 peak came from intra-company debt and reinvested earnings that firms could not repatriate under currency controls: in Q4 2023, debt instruments were $3.75 billion of $6.56 billion in net inflows and new equity only $0.49 billion (BCRA).</figcaption>
+  </figure>
+  <div class="split">
+    <figure class="plate" style="margin:0">
+      <h4>Figure 11. Who owns it</h4>
+      <p class="sub">FDI stock by immediate investor country, end-2023, US$ billion.</p>
+      <div id="fig-orig"></div>
+      <figcaption>Source: BCRA, <i>Informe sobre Inversión Extranjera Directa al 31/12/2023</i>. *Holding-company hubs. As in the Ireland and "dark matter" readings, these record the immediate owner, not the ultimate parent.</figcaption>
+    </figure>
+    <figure class="plate" style="margin:0">
+      <h4>Figure 12. Where it goes</h4>
+      <p class="sub">FDI stock by sector of the receiving firm, end-2023, US$ billion.</p>
+      <div id="fig-sect"></div>
+      <figcaption>Source: BCRA, same report. Inside manufacturing: motor vehicles $12.7 bn, food incl. grain traders $8.7 bn, chemicals $6.8 bn, basic metals $5.9 bn.</figcaption>
+    </figure>
+  </div>
+  <h3>What foreign firms are looking for</h3>
+  <p>Two motives from Ch. 6 dominate. <strong>Resource-seeking</strong> investment goes to mining, oil and gas (23% of the stock) and to agri-food traders. <strong>Market-seeking and vertical</strong> investment goes to autos, where Ford, Toyota, VW and Stellantis split production across Mercosur. Low labour costs barely feature: there is no export-processing assembly like Mexico's maquilas.</p>
+  <p><strong>Does Argentina invest abroad?</strong> Only a little. Outward FDI has run at 0.2–0.5% of GDP a year since 2007 (WDI), so it is not a significant source of national income. The large Argentine multinationals, such as Techint (steel pipes), Arcor (food) and Mercado Libre (e-commerce), are the exception.</p>
+  <p><strong>Greenfield or M&amp;A?</strong> In 2023 mergers and acquisitions were a net outflow, because foreign owners were selling (BCRA Q4 2023: −$35 million). New money came as reinvested earnings and intra-firm debt rather than new projects. A greenfield breakdown needs fDi Markets data, which the team does not have.</p>
+</section>
+
+<!-- VII -->
+<section class="chapter" id="ch-policy">
+  <p class="ch-num">Chapter VII</p>
+  <h2>Trade policy &amp; major agreements</h2>
+  <p class="lede">High tariffs set at the Mercosur level, taxes on its own exports, and a run of new agreements since 2025 that would be the biggest opening since the 1990s.</p>
+  <dl class="facts">
+    <div><dt>WTO member since</dt><dd>1995 (GATT 1967)</dd></div>
+    <div><dt>Applied tariff, simple mean, 2022</dt><dd>11.95% (Brazil 13.3%, Chile 1.0%)</dd></div>
+    <div><dt>Applied tariff, trade-weighted, 2022</dt><dd>6.45%</dd></div>
+    <div><dt>Peak Mercosur external tariff</dt><dd>35%: cars, apparel, footwear</dd></div>
+  </dl>
+  <p class="src">Sources: WTO country profile; WDI TM.TAX.MRCH.SM.AR.ZS and TM.TAX.MRCH.WM.AR.ZS (from UNCTAD TRAINS); Mercosur common external tariff.</p>
+  <figure class="plate">
+    <h4>Table 4. Major preferential agreements</h4>
+    <div class="scroll-x"><table>
+      <thead><tr><th>Agreement</th><th>In force</th><th>Type</th><th>Scope</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Mercosur (Brazil, Paraguay, Uruguay; Bolivia full member 2024)</td><td>1991; common tariff 1995</td><td>Customs union</td><td>Goods, services</td><td>Imperfect: national exception lists; autos and sugar outside free trade</td></tr>
+        <tr><td>Mercosur–Chile (ACE 35)</td><td>1996</td><td>FTA</td><td>Goods</td><td>Deepened by the Argentina–Chile FTA (2019: services, investment, e-commerce)</td></tr>
+        <tr><td>Mercosur–Bolivia (ACE 36)</td><td>1997</td><td>FTA</td><td>Goods</td><td>Superseded as Bolivia joins Mercosur</td></tr>
+        <tr><td>Mercosur–India</td><td>2009</td><td>PTA</td><td>Goods, limited</td><td>About 450 tariff lines</td></tr>
+        <tr><td>Mercosur–Israel; Mercosur–Egypt</td><td>2011; 2017</td><td>FTA</td><td>Goods</td><td>In force for Argentina</td></tr>
+        <tr><td>EU–Mercosur partnership and interim trade agreement</td><td>Signed 17 Jan 2026</td><td>FTA</td><td>Goods, services, investment, procurement</td><td>Referred by the European Parliament to the EU Court of Justice; ratification pending</td></tr>
+        <tr><td>US–Argentina reciprocal trade and investment framework</td><td>Announced 13 Nov 2025</td><td>Framework</td><td>Goods, investment</td><td>Access for US beef, poultry and machinery; a framework, not yet a treaty</td></tr>
+      </tbody>
+    </table></div>
+    <figcaption>Sources: WTO Regional Trade Agreements database; OAS SICE; USTR; Council of the EU.</figcaption>
+  </figure>
+  <div class="split">
+    <div><h3>Non-tariff measures</h3><p>Import licensing was the binding constraint for a decade. From 2022 every import needed SIRA approval tied to access to dollars; SEDI, a lighter system, replaced it in December 2023. SPS rules on beef, citrus and poultry shape farm trade. <span class="gap">UNCTAD TRAINS counts by measure type still to add.</span></p></div>
+    <div><h3>Export taxes</h3><p>The <i>derechos de exportación</i> tax Argentina's own comparative-advantage goods. Soybeans carried a 24% duty before the latest cuts, and Decree 423/2026 schedules reductions through 2028. By Lerner symmetry, an export tax works like an import tariff: both shrink trade.</p></div>
+    <div><h3>Investment rules and zones</h3><p>Most bilateral investment treaties were signed in the 1990s, and Argentina became a frequent respondent in investor-state arbitration after 2001. <span class="gap">UNCTAD IIA Navigator count of BITs in force still to add.</span> Zones: the Tierra del Fuego special customs area (1972) and free zones under Ley 24.331 (1994). RIGI (Ley 27.742, 2024) gives large projects 30 years of tax, customs and currency stability.</p></div>
+    <div><h3>Controversies</h3><p>The 2012 expropriation of 51% of YPF from Repsol led to a 2023 US court judgment of about $16 billion against Argentina. Capital controls ran in 2011–15 and from 2019, and were largely lifted for individuals in April 2025.</p></div>
+  </div>
+</section>
+
+<!-- IX -->
+<section class="chapter" id="ch-case">
+  <p class="ch-num">Chapter IX · Case study</p>
+  <h2>The Fuegian experiment: an infant industry at the end of the world</h2>
+  <p class="lede">In 1972 Ley 19.640 made Tierra del Fuego, 3,000 km from Buenos Aires, a tax- and duty-free zone. Phones, TVs and air conditioners are assembled there from imported kits and shipped north into a market walled off by the 35% external tariff. The regime now runs to 2038. Fifty years on, has the infant grown up?</p>
+  <h3>The Ch. 8 argument <span class="ch8tag">Oct 29 lecture</span></h3>
+  <p>Comparative advantage can be learned. If Home's productivity in a new industry rises with experience, as in <i>H(t) = A − B/t</i>, temporary protection lets it ride the learning curve until it overtakes the foreign producer. After that crossover date the protection should come off and the industry should export. The test follows directly: if the Fuegian learning curve existed, electronics should by now show a revealed comparative advantage and real exports.</p>
+  <figure class="plate">
+    <h4>Try it: when should Argentina have opened?</h4>
+    <p class="sub">Home output per worker in electronics H(t) = A − B/t, with t in years since 1972. Foreign = 2. Textiles = 2 in both countries.</p>
+    <div class="widget">
+      <div id="fig-learn"></div>
+      <div class="ctrl">
+        <label for="la">Learning ceiling A: <output id="lao">5.0</output><input id="la" type="range" min="1.5" max="6" step="0.1" value="5"></label>
+        <label for="lb">Learning speed B (higher is slower): <output id="lbo">40</output><input id="lb" type="range" min="5" max="150" step="1" value="40"></label>
+        <div class="presets">
+          <button type="button" data-a="5" data-b="40">Class example</button>
+          <button type="button" data-a="3" data-b="120">Slow learner</button>
+          <button type="button" data-a="1.9" data-b="40">What the data imply</button>
+        </div>
+        <p class="verdict" id="verdict"></p>
+      </div>
+    </div>
+    <figcaption>Crossover: Home's opportunity cost of electronics (2/H) falls below Foreign's (2/2 = 1) once H(t) &gt; 2, so t* = B ÷ (A − 2). Illustrative parameters from the EC 391 Ch. 8 learning-function example, not estimates.</figcaption>
+  </figure>
+  <h3>The scorecard</h3>
+  <dl class="score">
+    <div><dt>Years of protection (regime runs to 2038)</dt><dd>54</dd></div>
+    <div><dt>RCA, electrical machinery (HS 85), 2023</dt><dd>0.02</dd></div>
+    <div><dt>Brazil's RCA, with its Manaus zone</dt><dd>0.09</dd></div>
+    <div><dt>HS 85 exports vs imports, 2024</dt><dd>$0.19 bn vs $6.1 bn</dd></div>
+  </dl>
+  <p class="src">RCA, exports and imports: UN Comtrade, team calculation. Regime: Ley 19.640 (1972); Decree 727/2021 extends it to 31 December 2038.</p>
+  <div class="note"><strong>Verdict: protection moved assembly but did not create comparative advantage</strong>
+    <p>The regime did what it was legally designed to do: it put factories and people on a strategic, remote island. It did not do what the infant-industry argument promises. After five decades there is no export breakthrough (RCA 0.02, exports of $0.19 billion against $6.1 billion of imports), and the island assembles imported kits for a captive home market. In the model's terms the data fit a learning ceiling of A ≤ 2: Home never overtakes Foreign, there is no optimal opening date, and protection only shifts costs onto consumers.</p>
+    <p>This matches the lecture's reading of the evidence: few if any subsidized industries gain a lasting edge, and Brazil's computer policy is a known failure. It also fits Ch. 6. Tierra del Fuego imports whole kits, the opposite of Costa Rica, where CINDE drew Intel into a global value chain and the country moved up into medical devices.</p></div>
+  <h3>How we would test it properly, after Juhász</h3>
+  <p>Juhász used the Napoleonic blockade as a natural experiment: it raised trade costs more in northern France, and spinning capacity grew most there. The Fuegian analogue treats the 2009 expansion of the regime as a shock to one province: S<sub>pt</sub> = a<sub>p</sub> + b<sub>t</sub> + β·(TdF<sub>p</sub> × Post2009<sub>t</sub>) + e<sub>pt</sub>, where S is electronics employment or exports by province. A large β on employment and β ≈ 0 on exports would confirm relocation without learning. <span class="gap">This needs INDEC provincial manufacturing employment, 2003–2024, still to collect.</span></p>
+  <p><strong>The new industrial policy is different.</strong> RIGI (2024) does not pick infant industries. It bids for large projects where Argentina already has a natural advantage: lithium, copper, shale and fertilizer. That is a shift from creating comparative advantage to unlocking one that already exists.</p>
+</section>
+
+<!-- Sources -->
+<section class="chapter" id="ch-sources">
+  <p class="ch-num">Appendix</p>
+  <h2>Sources &amp; methods</h2>
+  <p class="lede">Every statistic comes from a government or intergovernmental source, except the Corruption Perceptions Index that the guidelines require. All charts and tables were built by the team from raw downloads. Data accessed 10 November 2026.</p>
+  <ul class="srclist">
+    <li><b><a href="https://data.worldbank.org/country/argentina">World Bank, World Development Indicators</a></b><span class="tag">IGO</span><br>GDP (current, PPP, per capita, growth), population, land and arable land, trade/GDP, BoP goods and services, FDI in and out, inflation, current account, tariffs (from TRAINS), LPI, life expectancy, literacy, tertiary enrolment, Gini, poverty, resource rents.</li>
+    <li><b><a href="https://www.worldbank.org/en/publication/worldwide-governance-indicators">World Bank, Worldwide Governance Indicators</a></b><span class="tag">IGO</span><br>Six governance scores (0–100), 2025 release; regional ranks by the team.</li>
+    <li><b><a href="https://comtradeplus.un.org/">UN Comtrade</a></b><span class="tag">UN</span><br>Argentine exports and imports by HS chapter and partner (2004, 2014, 2024); world exports by reporter (2023) for RCA; product lines 283691 (lithium carbonate), 030617 (frozen shrimp), 2204 (wine), 710812 (gold).</li>
+    <li><b><a href="https://www.bcra.gob.ar/">Banco Central de la República Argentina</a></b><span class="tag">Government</span><br><i>Informe sobre Inversión Extranjera Directa al 31/12/2023</i>: FDI stock by origin and sector, flow components.</li>
+    <li><b><a href="https://www.eia.gov/todayinenergy/">U.S. Energy Information Administration</a></b><span class="tag">Government</span><br>Today in Energy (December 2025): crude output and Vaca Muerta's share; shale resource estimates.</li>
+    <li><b><a href="https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-lithium.pdf">U.S. Geological Survey, Mineral Commodity Summaries 2026: Lithium</a></b><span class="tag">Government</span><br>Argentina's mine production (23,000 t Li, 2025 estimate) and reserves (4.4 Mt).</li>
+    <li><b><a href="https://fas.usda.gov/">USDA Foreign Agricultural Service</a></b><span class="tag">Government</span><br>Oilseeds Annual and Livestock and Products Annual (GAIN): soymeal and soy oil export rank; beef exports and destinations.</li>
+    <li><b><a href="https://hdr.undp.org/">UNDP, Human Development Report 2025</a></b><span class="tag">UN</span><br>HDI value and rank.</li>
+    <li><b><a href="https://www.oecd.org/en/publications/oecd-economic-surveys-argentina-2019_0c7f002c-en/full-report/component-5">OECD Economic Surveys: Argentina 2019</a></b><span class="tag">IGO</span><br>GVC participation ranking (from TiVA).</li>
+    <li><b><a href="https://www.wto.org/english/thewto_e/countries_e/argentina_e.htm">World Trade Organization</a></b><span class="tag">IGO</span><br>Membership, regional trade agreements.</li>
+    <li><b><a href="https://www.transparency.org/en/cpi">Transparency International, CPI 2025</a></b><span class="tag">NGO, required by the guidelines</span></li>
+    <li><b><a href="https://www.boletinoficial.gob.ar/">Boletín Oficial de la República Argentina</a></b><span class="tag">Government</span><br>Ley 19.640 (1972); Decree 727/2021; Ley 27.742 (RIGI, 2024); Decree 423/2026; Ministry of Economy Resolution 1157/2026. Also USTR (Nov 2025 fact sheet) and the Council of the EU on EU–Mercosur.</li>
+    <li><b><a href="https://www.naturalearthdata.com/">Natural Earth</a></b><span class="tag">Public domain</span><br>Country, province, river and lake outlines for the map, projected and simplified by the team. Terrain on the map is illustrative.</li>
+  </ul>
+  <h3>Methods</h3>
+  <p><strong>Revealed comparative advantage.</strong> RCA<sub>ik</sub> = (X<sub>ik</sub>/X<sub>i</sub>) ÷ (X<sub>Wk</sub>/X<sub>W</sub>), with the world as the sum of 167 Comtrade reporters with 2023 data, at HS-chapter level unless noted.</p>
+  <p><strong>Gravity.</strong> OLS of ln(exports to j, 2024) on ln(GDP<sub>j</sub>, 2024) and ln(distance). N = 145. Coefficients: GDP 1.155 (s.e. 0.063), distance −1.448 (0.223), R² 0.70.</p>
+  <p><strong>Concentration.</strong> Herfindahl index = Σ s<sub>j</sub>² over all partner shares.</p>
+  <p><strong>Export groups.</strong> HS 01–24 food and farm; 25–27 fuels and minerals; 28–40 chemicals and plastics; 71–83 metals and gold; 84–89 machinery and vehicles; the rest, including HS 99, is "other".</p>
+  <div class="note"><strong>Still to collect before submission</strong>
+    <p>OECD TiVA: foreign value-added share of gross exports and forward participation (Ch. V). World Bank B-READY score, if Argentina is covered (Ch. II). UNCTAD TRAINS NTM counts and the IIA Navigator BIT count (Ch. VII). INDEC provincial employment for the Tierra del Fuego test (Ch. IX). The OECD and UNCTAD sites block automated download, so these need a manual export.</p></div>
+</section>
+
+    </article>
+  </div>
+</section>
+<footer>Argentina Trade Atlas · EC 391 International Trade, Fall 2026 · Map terrain is illustrative; borders from Natural Earth.</footer>
+
+<script>
+const GEO = /*__GEO__*/null;
+const DATA = /*__DATA__*/null;
+const DATA2 = /*__DATA2__*/null;
+</script>
+<script>
+(function(){
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+const $=s=>document.querySelector(s);
+const fmt=(v,d=1)=>Number(v).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- sun emblem ---------- */
+(function(){let g="";for(let i=0;i<16;i++){const a=i*Math.PI/8,l=i%2?15:19;g+=`<path d="M${20+Math.cos(a)*9} ${20+Math.sin(a)*9}L${20+Math.cos(a)*l} ${20+Math.sin(a)*l}" stroke="#F3D88E" stroke-width="${i%2?1.4:2.2}" stroke-linecap="round"/>`}$("#rays").innerHTML=g})();
+
+/* ---------- yields ribbon ---------- */
+const Y=[
+ {i:"M4 20h16M6 20V10M10 20V6M14 20v-8M18 20V4",v:"$683 bn",l:"GDP 2025",t:"GDP, current US$, 2025. World Bank WDI NY.GDP.MKTP.CD"},
+ {i:"M9 7a3 3 0 1 0 6 0 3 3 0 1 0-6 0M5 21c0-4 3-7 7-7s7 3 7 7",v:"45.9 m",l:"people",t:"Population, 2025. World Bank WDI SP.POP.TOTL"},
+ {i:"M4 8h13l-3-3M20 16H7l3 3",v:"30.4%",l:"trade / GDP",t:"Exports + imports of goods and services, % of GDP, 2025. World Bank WDI NE.TRD.GNFS.ZS"},
+ {i:"M4 18 10 12l4 4 6-8M20 8v5M20 8h-5",v:"219.9%",l:"inflation 2024",t:"Consumer price inflation, 2024. World Bank WDI FP.CPI.TOTL.ZG"},
+ {i:"M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z",v:"0.865",l:"HDI, rank 47",t:"Human Development Index (2023 data), UNDP Human Development Report 2025"}
+];
+const yHTML=Y.map(y=>`<div class="yield" title="${esc(y.t)}" tabindex="0" aria-label="${esc(y.l+': '+y.v+'. '+y.t)}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D6A84A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${y.i}"/></svg><strong>${y.v}</strong><span>${y.l}</span></div>`).join("");
+document.querySelectorAll(".yields").forEach(el=>el.innerHTML=yHTML);
+const CHS=[["ch-profile","I","Country profile","Profile"],["ch-macro","II","Macro & institutions","Macro"],["ch-trade","III","Openness & trade","Trade"],["ch-rca","IV","Comparative advantage","Advantage"],["ch-gvc","V","Value chains","Value chains"],["ch-fdi","VI","Foreign investment","FDI"],["ch-policy","VII","Trade policy","Policy"],["ch-case","IX","Case study: Tierra del Fuego","Case study"],["ch-sources","§","Sources & methods","Sources"]];
+document.querySelector(".chapnav").innerHTML=CHS.map(c=>`<a href="#${c[0]}">${c[3]}</a>`).join("");
+$("#menu-list").innerHTML=`<li><a href="#top"><span>✦</span>The map</a></li>`+CHS.map(c=>`<li><a href="#${c[0]}"><span>${c[1]}</span>${esc(c[2])}</a></li>`).join("");
+{const mb=$("#menu-btn"),menu=$("#menu");
+ const setMenu=o=>{menu.hidden=!o;mb.setAttribute("aria-expanded",String(o))};
+ mb.addEventListener("click",()=>setMenu(menu.hidden));
+ menu.addEventListener("click",e=>{if(e.target.closest("a"))setMenu(false)});
+ document.addEventListener("click",e=>{if(!menu.hidden&&!e.target.closest("#menu,#menu-btn"))setMenu(false)});
+ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!menu.hidden){setMenu(false);mb.focus();e.stopImmediatePropagation()}},true);}
+
+/* ---------- map data ---------- */
+const R=[
+ {id:"oil",name:"Shale oil & gas",short:"Vaca Muerta",region:"Neuquén Basin, Neuquén",lon:-68.9,lat:-38.3,c1:"#2b2621",c2:"#6b5f52",
+  icon:"M8 21 12 3l4 18M9.6 14h4.8M10.6 9h2.8M5 21h14",
+  big:"~740,000 b/d",bigLabel:"Argentine crude output expected for 2025, up from about 670,000 b/d in 2024 (EIA)",
+  stats:[["Vaca Muerta share of crude output","EIA, Today in Energy, Dec 2025","~62%"],["Technically recoverable shale","EIA estimate","16 bn bbl · 308 Tcf"],["Fuel exports (HS 27), 2024","UN Comtrade","$7.6 bn"],["RCA in fuels, 2023","Team calc., UN Comtrade","0.74"]],
+  note:"<b>Not the Permian, but often compared to it.</b> Vaca Muerta sits in the Neuquén Basin. Fuels still have an RCA below 1, so this is a comparative advantage being built. A resource boom this size also raises the Dutch-disease question for the peso and for farm exports.",
+  go:"#ch-rca",cta:"See RCA by sector"},
+ {id:"li",name:"Lithium",short:"Lithium",region:"Puna salt flats: Catamarca, Salta, Jujuy",lon:-66.8,lat:-24.2,c1:"#2f6a70",c2:"#8fd3cf",
+  icon:"M8 6h8v15H8zM10 3h4v3M12.6 9.5l-2.4 4h3.6l-2.4 4",
+  big:"23,000 t",bigLabel:"lithium content mined in 2025, up from 13,800 t in 2024 (USGS Mineral Commodity Summaries 2026)",
+  stats:[["Reserves","USGS MCS 2026","4.4 Mt Li"],["Lithium carbonate exports, 2024","UN Comtrade, HS 283691","$406 m"],["RCA, lithium carbonate, 2023","Team calc. (Chile: 170.7)","24.7"],["POSCO Sal de Oro II approved under RIGI","Min. of Economy Res. 1157/2026","Jul 2026"]],
+  note:"<b>Heckscher-Ohlin at altitude.</b> The endowment is brine in high-Andean salt flats. Argentina sits far upstream in the battery chain, selling carbonate that is refined elsewhere. Chile's RCA is about seven times larger, so Argentina is the late entrant.",
+  go:"#ch-gvc",cta:"See value-chain position"},
+ {id:"soy",name:"Soymeal & soy oil",short:"Soy complex",region:"Gran Rosario, on the Paraná",lon:-60.7,lat:-32.9,c1:"#5d6a22",c2:"#b9c46a",
+  icon:"M5 19C5 11 11 5 19 5c0 8-6 14-14 14zM5 19l8-8",
+  big:"No. 1",bigLabel:"world exporter of soybean meal and soybean oil (USDA Foreign Agricultural Service)",
+  stats:[["Oilcake & meal (HS 23), 2024","UN Comtrade","$8.4 bn"],["Vegetable oils (HS 15), 2024","UN Comtrade","$7.2 bn"],["RCA, HS 23 / HS 15, 2023","Team calc.","26.9 / 13.7"],["Soybean export duty before latest cuts","Decree 423/2026 schedules cuts to 2028","24%"]],
+  note:"<b>Processing at home.</b> Argentina crushes most of its soybeans and ships meal and oil rather than raw beans, so more value is added before export. Export duties have long fallen hardest on this sector.",
+  go:"#ch-policy",cta:"See export-tax policy"},
+ {id:"grain",name:"Wheat & maize",short:"Cereals",region:"Pampa Húmeda: Buenos Aires, Córdoba, Santa Fe",lon:-62.6,lat:-35.2,c1:"#a6761f",c2:"#f0cf72",
+  icon:"M12 21V5M12 9C10 8 9 6 9 4c2 0 3 2 3 5zM12 9c2-1 3-3 3-5-2 0-3 2-3 5zM12 14c-2-1-3-3-3-5 2 0 3 2 3 5zM12 14c2-1 3-3 3-5-2 0-3 2-3 5z",
+  big:"19.3",bigLabel:"revealed comparative advantage in cereals (HS 10), 2023: 19 times the world export share",
+  stats:[["Cereal exports (HS 10), 2024","UN Comtrade","$10.1 bn"],["Share of goods exports","UN Comtrade, 2024","12.7%"],["RCA, Brazil / Chile","Team calc., 2023","6.6 / 0.16"]],
+  note:"<b>The land-abundant textbook case.</b> Heckscher-Ohlin predicts exports of land-intensive goods, and the Pampa delivers exactly that. 2023 was a severe drought year, so treat that year's totals as a low point.",
+  go:"#ch-rca",cta:"See the RCA table"},
+ {id:"beef",name:"Beef",short:"Beef",region:"Salado Basin, Buenos Aires",lon:-58.6,lat:-36.4,c1:"#7c321f",c2:"#d27a55",
+  icon:"M6 7C4 7 3 5 3 4M18 7c2 0 3-2 3-3M6 7h12l-1.4 8a4.6 4.6 0 0 1-9.2 0zM10 15.5h.01M14 15.5h.01",
+  big:"$3.4 bn",bigLabel:"meat exports in 2024 (UN Comtrade, HS 02)",
+  stats:[["RCA in meat, 2023","Team calc. (Uruguay: 36.3)","6.7"],["Largest beef buyer","USDA FAS, Livestock and Products Annual","China"],["Distance, Buenos Aires to Beijing","Team calc.","19,300 km"]],
+  note:"<b>Gravity has two sides.</b> China is about as far from Buenos Aires as a country can be, yet it buys most of Argentina's beef. Distance cuts trade, but China's very large GDP more than offsets it.",
+  go:"#ch-trade",cta:"See the gravity model"},
+ {id:"wine",name:"Wine",short:"Wine",region:"Cuyo oases: Mendoza, San Juan",lon:-68.7,lat:-33.3,c1:"#5e1f3e",c2:"#b05c86",
+  icon:"M8 3h8l-.6 6a3.4 3.4 0 0 1-6.8 0zM12 13v7M8.5 21h7",
+  big:"$686 m",bigLabel:"wine exports in 2024 (UN Comtrade, HS 2204)",
+  stats:[["Bottled wine (under 2 L), HS 220421","UN Comtrade, 2024","$625 m"],["Volume shipped, all wine","UN Comtrade, 2024","198 m kg"]],
+  note:"<b>Know-how as comparative advantage (Ch. 8).</b> Irrigated oases at the foot of the Andes. Quality and reputation are learned over decades, and over 90% of export value now leaves in bottles rather than in bulk.",
+  go:"#ch-case",cta:"See the Ch. 8 case study"},
+ {id:"auto",name:"Motor vehicles",short:"Autos",region:"Córdoba and Greater Buenos Aires",lon:-64.2,lat:-31.4,c1:"#26394a",c2:"#7f9bb2",
+  icon:"M3 16v-3l2-5h14l2 5v3zM6 16v2M18 16v2M7.5 12.5h.01M16.5 12.5h.01M3 13h18",
+  big:"$7.8 bn",bigLabel:"vehicle and parts exports in 2024, 9.8% of goods exports (UN Comtrade, HS 87)",
+  stats:[["RCA, vehicles, 2023","Team calc. (Brazil: 0.45)","1.50"],["FDI inflow to automakers, Q4 2023","BCRA, IED report","$1.54 bn"],["Brazil's share of all exports","UN Comtrade, 2024","17.1%"]],
+  note:"<b>The one manufacturing RCA above 1.</b> Mercosur's managed auto trade lets multinationals split model lines between Argentina and Brazil: vertical FDI and intra-firm trade (Ch. 6).",
+  go:"#ch-fdi",cta:"See FDI by sector"},
+ {id:"gold",name:"Gold & silver",short:"Gold",region:"San Juan Andes and Santa Cruz",lon:-69.7,lat:-29.6,c1:"#7f5f12",c2:"#f2d57a",
+  icon:"M3 18l3-8h12l3 8zM6 10l2-4h8l2 4M9 14h6",
+  big:"$1.6 bn",bigLabel:"non-monetary gold exports in 2024 (UN Comtrade, HS 710812)",
+  stats:[["RCA, precious metals (HS 71), 2023","Team calc.","0.99"],["FDI stock, mining, oil & gas","BCRA, end-2023","$29.1 bn"],["Share of total FDI stock","BCRA, end-2023","23%"]],
+  note:"<b>Resource-seeking FDI.</b> Foreign firms come for the geology, not the home market. RIGI offers 30 years of tax and currency stability to win these large, sunk investments.",
+  go:"#ch-fdi",cta:"See FDI by sector"},
+ {id:"shrimp",name:"Patagonian shrimp",short:"Shrimp",region:"Golfo San Jorge: Chubut, Santa Cruz",lon:-65.9,lat:-46.3,c1:"#9b4423",c2:"#f09a6e",
+  icon:"M3 12c4-6 12-6 16 0-4 6-12 6-16 0zM19 12l3-3v6zM8 11h.01",
+  big:"$939 m",bigLabel:"frozen shrimp exports in 2024 (UN Comtrade, HS 030617)",
+  stats:[["RCA, frozen shrimp, 2023","Team calc.","15.9"],["All fish & seafood (HS 03), 2024","UN Comtrade","$1.9 bn"]],
+  note:"<b>A narrow but deep advantage.</b> One species on the Patagonian shelf turns a natural endowment into one of Argentina's strongest RCAs.",
+  go:"#ch-rca",cta:"See the RCA table"},
+ {id:"tdf",name:"Electronics",short:"Tierra del Fuego",region:"Río Grande and Ushuaia, Tierra del Fuego",lon:-67.7,lat:-53.8,c1:"#1d3a49",c2:"#5e93ae",
+  icon:"M7 7h10v10H7zM10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4",
+  big:"0.02",bigLabel:"RCA in electrical machinery (HS 85), 2023, after five decades of special-regime protection",
+  stats:[["Special regime created","Ley 19.640","1972"],["Extended until","Decree 727/2021","2038"],["Electrical machinery exports, 2024","UN Comtrade, HS 85","$0.19 bn"],["Electrical machinery imports, 2024","UN Comtrade, HS 85","$6.1 bn"]],
+  note:"<b>Ch. 8's infant industry, in the field.</b> If the learning curve had worked, the island would have crossed over and started exporting by now. It still assembles for the protected home market.",
+  go:"#ch-case",cta:"Read the case study"}
+];
+const FLAG="M5 21V4M5 4h11l-2 4 2 4H5";
+const PTN=[
+ {id:"bra",name:"Brazil",short:"No. 1 market, Mercosur",region:"Neighbour and Mercosur founding member",lon:-53.6,lat:-28.6,c1:"#2f5a27",c2:"#8fb46a",icon:FLAG,
+  big:"$13.6 bn",bigLabel:"goods exports to Brazil in 2024, 17.1% of the total and the largest market (UN Comtrade)",
+  stats:[["Imports from Brazil (rank 1)","UN Comtrade, 2024","$14.3 bn"],["Bilateral goods balance","UN Comtrade, 2024","−$0.7 bn"],["Capital-to-capital distance","Team calc., WB coordinates","2,341 km"],["Agreement","Treaty of Asunción","Mercosur, 1991"]],
+  note:"<b>A gravity pair.</b> A very large economy that is close and inside a customs union. Much of the trade is two-way within the same industries, autos above all: intra-industry trade inside multinational supply chains.",go:"#ch-trade",cta:"See partners and gravity"},
+ {id:"chl",name:"Chile",short:"No. 3 market, FTA 2019",region:"Neighbour across the Andes",lon:-71.0,lat:-27.6,c1:"#5e5040",c2:"#c9b48f",icon:FLAG,
+  big:"$6.3 bn",bigLabel:"exports to Chile in 2024, 8.0% of the total, the third-largest market (UN Comtrade)",
+  stats:[["Imports from Chile (rank 15)","UN Comtrade, 2024","$0.7 bn"],["Bilateral goods balance","UN Comtrade, 2024","+$5.6 bn"],["Capital-to-capital distance","Team calc.","1,133 km"],["Agreements","ACE 35; Argentina–Chile FTA","1996; 2019"]],
+  note:"<b>Argentina's largest bilateral surplus.</b> Chile is a small, very open economy next door, and pipelines and mountain passes make the Andes less of a barrier than they look.",go:"#ch-policy",cta:"See trade agreements"},
+ {id:"ury",name:"Uruguay",short:"No. 8 market, Mercosur",region:"Neighbour across the River Plate",lon:-54.7,lat:-33.6,c1:"#3f6a30",c2:"#a6bf78",icon:FLAG,
+  big:"$1.8 bn",bigLabel:"exports to Uruguay in 2024, 2.2% of the total (UN Comtrade)",
+  stats:[["Imports from Uruguay","UN Comtrade, 2024","$0.8 bn"],["Bilateral goods balance","UN Comtrade, 2024","+$0.9 bn"],["Capital-to-capital distance","Team calc.","217 km"]],
+  note:"<b>Close but small.</b> Montevideo is only 217 km from Buenos Aires, but Uruguay's economy is small. Gravity says size matters as much as distance, and Uruguay is only the eighth-largest market.",go:"#ch-trade",cta:"See the gravity model"},
+ {id:"pry",name:"Paraguay",short:"No. 4 supplier, Mercosur",region:"Neighbour up the Paraná",lon:-58.4,lat:-23.4,c1:"#4f6d2a",c2:"#b3c47a",icon:FLAG,
+  big:"$3.3 bn",bigLabel:"imports from Paraguay in 2024, 5.5% of the total, the fourth-largest supplier (UN Comtrade)",
+  stats:[["Exports to Paraguay","UN Comtrade, 2024","$1.4 bn"],["Bilateral goods balance","UN Comtrade, 2024","−$1.9 bn"],["Capital-to-capital distance","Team calc.","1,038 km"]],
+  note:"<b>Soybeans down the river.</b> A landlocked neighbour linked by the Paraná–Paraguay waterway, and one of the few partners Argentina buys more from than it sells to. Many of those beans feed Rosario's crushers.",go:"#ch-gvc",cta:"See value chains"},
+ {id:"bol",name:"Bolivia",short:"No. 37 market, Mercosur 2024",region:"Neighbour on the Altiplano",lon:-65.4,lat:-21.6,c1:"#6e5238",c2:"#c9ae84",icon:FLAG,
+  big:"$0.4 bn",bigLabel:"exports to Bolivia in 2024, 0.5% of the total, ranked 37th despite a shared border (UN Comtrade)",
+  stats:[["Imports from Bolivia","UN Comtrade, 2024","$0.7 bn"],["Bilateral goods balance","UN Comtrade, 2024","−$0.3 bn"],["Capital-to-capital distance","Team calc. (to La Paz)","2,422 km"]],
+  note:"<b>A border is not enough.</b> Bolivia's economy is small and the Altiplano and Chaco make transport costly. Gravity explains why a shared border alone does not create trade.",go:"#ch-trade",cta:"See the gravity model"}
+];
+const CAP={id:"cap",kind:"capital",name:"Buenos Aires",short:"Capital",region:"Federal capital, on the Río de la Plata",lon:-58.38,lat:-34.6,c1:"#6e5214",c2:"#F3D88E",
+  icon:"M12 3a9 9 0 1 0 .01 0zM12 8h.01M10.5 11.5H12V17M10.5 17h3",
+  big:"15.8 million",bigLabel:"people in Greater Buenos Aires in 2025, Argentina's largest city (World Bank WDI, EN.URB.LCTY)",
+  stats:[["Share of all Argentines","Team calc. from WDI, 2025","34%"],["Share of the urban population","WDI EN.URB.LCTY.UR.ZS, 2025","37.2%"],["Urban share of the population","WDI SP.URB.TOTL.IN.ZS, 2025","92.4%"],["Distance to Montevideo / Brasília","Team calc., WB coordinates","217 / 2,341 km"]],
+  note:"<b>Where the economy is run.</b> Buenos Aires is the seat of the federal government and the central bank (BCRA), and the hub for finance, services and company headquarters. The goods are grown and mined in the provinces, but much of the trade and FDI is managed from here. Every distance in our gravity model is measured from this point.",
+  go:"#ch-profile",cta:"See the country profile"};
+const FLK={id:"flk",kind:"info",name:"Malvinas / Falklands",short:"Disputed islands",region:"South Atlantic: UK-administered, claimed by Argentina",lon:-59.1,lat:-51.85,c1:"#2c4a5c",c2:"#9cc3d6",
+  icon:"M12 3a9 9 0 1 0 .01 0zM12 8h.01M10.5 11.5H12V17M10.5 17h3",
+  big:"Since 1833",bigLabel:"under British administration, and claimed by Argentina ever since. The UN lists the islands as a non-self-governing territory and has called for negotiations (UN General Assembly Resolution 2065, 1965).",
+  stats:[["Length of the 1982 war","UK Ministry of Defence","74 days"],["Military deaths, Argentine / British","UK Ministry of Defence","649 / 255"],["2013 referendum vote to stay a UK territory","Falkland Islands Government","99.8%"],["Distance from Río Gallegos / Buenos Aires","Team calc.","783 / 1,901 km"]],
+  note:"<b>Why it matters for trade.</b> The islands sit on the Patagonian shelf, so the dispute covers rich squid fisheries and possible offshore oil. Argentina's 1994 constitution makes recovering them a permanent national goal, and Ley 26.659 (2011) penalises firms that explore for oil around the islands without Argentine permission.",
+  go:"#ch-policy",cta:"See trade policy"};
+const CITIES=[{"id": "cor", "kind": "city", "name": "Córdoba", "short": "City", "region": "Córdoba province", "lon": -64.18, "lat": -31.42, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "3.8 million", "bigLabel": "people in Córdoba province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "8.4%"], ["Distance from Buenos Aires", "Team calc., great-circle", "650 km"]], "note": "<b>The car capital.</b> Argentina's second-largest province by population and the centre of its auto industry, with Renault and Stellantis assembly plants around the city. It also sits in the northern Pampa's grain belt.", "rel": "auto", "go": "#", "cta": null}, {"id": "ros", "kind": "city", "name": "Rosario", "short": "City", "region": "Santa Fe province", "lon": -60.65, "lat": -32.95, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "3.5 million", "bigLabel": "people in Santa Fe province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "7.7%"], ["Distance from Buenos Aires", "Team calc., great-circle", "280 km"]], "note": "<b>Where the harvest leaves.</b> The Gran Rosario river ports on the Paraná ship the bulk of Argentina's grain and soy, and the area is one of the world's largest soy-crushing clusters.", "rel": "soy", "go": "#", "cta": null}, {"id": "mza", "kind": "city", "name": "Mendoza", "short": "City", "region": "Mendoza province", "lon": -68.84, "lat": -32.89, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "2.0 million", "bigLabel": "people in Mendoza province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "4.5%"], ["Distance from Buenos Aires", "Team calc., great-circle", "990 km"]], "note": "<b>Wine and the road to Chile.</b> The capital of Argentine wine, and the start of the main road crossing to Chile through the Cristo Redentor pass beneath Aconcagua.", "rel": "wine", "go": "#", "cta": null}, {"id": "sal", "kind": "city", "name": "Salta", "short": "City", "region": "Salta province", "lon": -65.41, "lat": -24.78, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "1.4 million", "bigLabel": "people in Salta province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "3.1%"], ["Distance from Buenos Aires", "Team calc., great-circle", "1,280 km"]], "note": "<b>Gateway to the Puna.</b> The colonial capital of the north-west, and the service base for the lithium salt flats on the high plateau.", "rel": "li", "go": "#", "cta": null}, {"id": "tuc", "kind": "city", "name": "Tucumán", "short": "City", "region": "Tucumán province", "lon": -65.2, "lat": -26.82, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "1.7 million", "bigLabel": "people in Tucumán province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "3.8%"], ["Distance from Buenos Aires", "Team calc., great-circle", "1,080 km"]], "note": "<b>Sugar and lemons.</b> Argentina's smallest province by area, built on sugar cane and citrus. It is the country's main lemon-growing region.", "rel": null, "go": "#ch-rca", "cta": "See comparative advantage"}, {"id": "nqn", "kind": "city", "name": "Neuquén", "short": "City", "region": "Neuquén province", "lon": -68.06, "lat": -38.95, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "710,814", "bigLabel": "people in Neuquén province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "1.5%"], ["Distance from Buenos Aires", "Team calc., great-circle", "990 km"]], "note": "<b>Shale headquarters.</b> The provincial capital for the Vaca Muerta play. Oil-field services, pipelines and workers fan out from here to the wells around Añelo.", "rel": "oil", "go": "#", "cta": null}, {"id": "bbl", "kind": "city", "name": "Bahía Blanca", "short": "City", "region": "Buenos Aires province", "lon": -62.27, "lat": -38.72, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "17.5 million", "bigLabel": "people in Buenos Aires province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "38.2%"], ["Distance from Buenos Aires", "Team calc., great-circle", "570 km"]], "note": "<b>Deep-water port and petrochemicals.</b> Grain from the southern Pampa, fertilizer and plastics leave from here; the port is one of the few on the coast deep enough for large bulk carriers.", "rel": "grain", "go": "#", "cta": null}, {"id": "crd", "kind": "city", "name": "Comodoro Rivadavia", "short": "City", "region": "Chubut province", "lon": -67.48, "lat": -45.86, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "592,621", "bigLabel": "people in Chubut province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "1.3%"], ["Distance from Buenos Aires", "Team calc., great-circle", "1,470 km"]], "note": "<b>Where Argentine oil began.</b> Crude was struck here in 1907. Today the city serves the Golfo San Jorge oil basin and the shrimp fleet.", "rel": "shrimp", "go": "#", "cta": null}, {"id": "brc", "kind": "city", "name": "Bariloche", "short": "City", "region": "Río Negro province", "lon": -71.3, "lat": -41.13, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "750,768", "bigLabel": "people in Río Negro province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "1.6%"], ["Distance from Buenos Aires", "Team calc., great-circle", "1,340 km"]], "note": "<b>Lakes and high technology.</b> A tourist town that is also home to INVAP, a provincially owned technology firm that has exported research reactors abroad. It is a rare high-tech export built on decades of accumulated know-how, the Ch. 8 story in reverse.", "rel": null, "go": "#ch-case", "cta": "See the Ch. 8 case study"}, {"id": "cal", "kind": "city", "name": "El Calafate", "short": "City", "region": "Santa Cruz province", "lon": -72.27, "lat": -50.34, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "337,226", "bigLabel": "people in Santa Cruz province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "0.7%"], ["Distance from Buenos Aires", "Team calc., great-circle", "2,080 km"]], "note": "<b>Glaciers as an export.</b> The gateway to the Perito Moreno glacier. What foreign visitors spend here counts as a services export in the balance of payments.", "rel": null, "go": "#ch-trade", "cta": "See the services balance"}, {"id": "ush", "kind": "city", "name": "Ushuaia", "short": "City", "region": "Tierra del Fuego province", "lon": -68.3, "lat": -54.8, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "185,732", "bigLabel": "people in Tierra del Fuego province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "0.4%"], ["Distance from Buenos Aires", "Team calc., great-circle", "2,370 km"]], "note": "<b>The end of the world.</b> The southernmost city, a port for Antarctic cruises, and one of the two towns that assemble electronics under the Tierra del Fuego special regime.", "rel": "tdf", "go": "#", "cta": null}, {"id": "igr", "kind": "city", "name": "Iguazú", "short": "City", "region": "Misiones province", "lon": -54.44, "lat": -25.69, "c1": "#4a3b29", "c2": "#d9c7a0", "icon": "M4 21V10l4-3 4 3v11M12 21V6l4-3 4 3v15M2.5 21h19M8 14h.01M16 9h.01M16 13h.01M16 17h.01", "big": "1.3 million", "bigLabel": "people in Misiones province (INDEC, Census 2022, final results)", "stats": [["Share of Argentina's population", "Team calc. from INDEC Census 2022", "2.8%"], ["Distance from Buenos Aires", "Team calc., great-circle", "1,060 km"]], "note": "<b>The triple border.</b> Puerto Iguazú sits where Argentina, Brazil and Paraguay meet, beside the Iguazú Falls.", "rel": "bra", "go": "#", "cta": null}];
+for(const c of CITIES){if(c.rel){const r=R.concat(PTN).find(x=>x.id===c.rel);c.cta="Show "+r.name.toLowerCase().replace(/^./,m=>m.toUpperCase())}}
+const ALL=R.concat(PTN,[CAP,FLK],CITIES);
+const f2=n=>n.toFixed(2);
+const star=(cx,cy,R)=>{let p="";for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5,r=i%2?R*.382:R;p+=(i?"L":"M")+f2(cx+r*Math.cos(a))+" "+f2(cy+r*Math.sin(a))}return p+"Z"};
+const sunOfMay=(cx,cy,r,R)=>{let p="";for(let i=0;i<16;i++){const a=i*Math.PI/8,w=Math.PI/16*.65,L=i%2?R*.82:R;p+=`M${f2(cx+L*Math.cos(a))} ${f2(cy+L*Math.sin(a))}L${f2(cx+r*Math.cos(a+w))} ${f2(cy+r*Math.sin(a+w))}L${f2(cx+r*Math.cos(a-w))} ${f2(cy+r*Math.sin(a-w))}Z`}
+  return `<path d="${p}" fill="#FCD116" stroke="#8a6512" stroke-width="${f2(r*.12)}" stroke-linejoin="round"/><circle cx="${f2(cx)}" cy="${f2(cy)}" r="${f2(r)}" fill="#FCD116" stroke="#8a6512" stroke-width="${f2(r*.15)}"/>`};
+const bands=(w,h,cols)=>cols.map((c,i)=>`<rect y="${f2(i*h/cols.length)}" width="${w}" height="${f2(h/cols.length+.06)}" fill="${c}"/>`).join("");
+const FLAGS={
+  bra:(w,h)=>`<rect width="${w}" height="${h}" fill="#009C3B"/><path d="M${w/2} ${f2(h*.1)}L${f2(w*.93)} ${h/2}L${w/2} ${f2(h*.9)}L${f2(w*.07)} ${h/2}Z" fill="#FFDF00"/>`+
+    `<circle cx="${w/2}" cy="${h/2}" r="${f2(Math.min(w,h)*.23)}" fill="#002776"/><path d="M${f2(w/2-Math.min(w,h)*.22)} ${f2(h/2-h*.02)}Q${w/2} ${f2(h/2-h*.11)} ${f2(w/2+Math.min(w,h)*.22)} ${f2(h/2+h*.06)}" fill="none" stroke="#fff" stroke-width="${f2(h*.05)}"/>`,
+  chl:(w,h)=>{const c=h/2;return `<rect width="${w}" height="${h}" fill="#D52B1E"/><rect width="${w}" height="${c}" fill="#fff"/><rect width="${c}" height="${c}" fill="#0039A6"/><path d="${star(c/2,c/2,c*.3)}" fill="#fff"/>`},
+  ury:(w,h)=>{let st="";for(let i=0;i<9;i++)st+=`<rect y="${f2(i*h/9)}" width="${w}" height="${f2(h/9+.05)}" fill="${i%2?"#0038A8":"#fff"}"/>`;const c=h*5/9;
+    return st+`<rect width="${f2(c)}" height="${f2(c)}" fill="#fff"/>`+sunOfMay(c/2,c/2,c*.16,c*.38)},
+  pry:(w,h)=>bands(w,h,["#D52B1E","#fff","#0038A8"])+`<circle cx="${w/2}" cy="${h/2}" r="${f2(h*.13)}" fill="#fff" stroke="#2E7D32" stroke-width="${f2(h*.03)}"/><path d="${star(w/2,h/2,h*.07)}" fill="#E8B00F"/>`,
+  bol:(w,h)=>bands(w,h,["#D52B1E","#F9E300","#007934"])
+};
+const flagBadge=id=>`<svg viewBox="0 0 24 24" aria-hidden="true">${FLAGS[id](24,24)}</svg>`;
+
+/* ---------- projection ---------- */
+const P=(lon,lat)=>[(lon-GEO.lon0)*GEO.K*GEO.sx,(GEO.lat0-lat)*GEO.sx];
+const VB0={x:20,y:30,w:900,h:1620};
+const map=$("#map");
+map.setAttribute("viewBox",`${VB0.x} ${VB0.y} ${VB0.w} ${VB0.h}`);
+map.setAttribute("preserveAspectRatio","xMidYMid meet");
+
+/* hashing for stable pseudo-random decoration */
+function hash(a,b){let h=Math.imul(a*374761393+b*668265263,1274126177);h^=h>>>13;h=Math.imul(h,1103515245);return ((h>>>0)%10000)/10000}
+
+/* point in polygon over all ARG rings */
+const rings=GEO.argRings;
+function inside(x,y){let c=false;for(const r of rings){for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c}}return c}
+
+function interp(pts,lat){ // pts sorted by lat desc (north first)
+  if(lat>=pts[0][0])return pts[0][1];
+  for(let i=1;i<pts.length;i++){if(lat>=pts[i][0]){const [a,la]=pts[i-1],[b,lb]=pts[i];const t=(lat-a)/(b-a);return la+(lb-la)*t}}
+  return pts[pts.length-1][1];
+}
+const ANDES=[[-21.5,-66.7],[-24,-67.2],[-26,-67.6],[-28,-68.1],[-30,-68.9],[-33,-69.2],[-36,-69.9],[-39,-70.4],[-42,-70.9],[-46,-71.2],[-48,-71.8],[-50,-72.5],[-52,-72.0]];
+function vnoise(x,y,seed){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,sm=t=>t*t*(3-2*t);const h=(p,q)=>hash(p*7+seed*131,q*13+seed*17);const a=h(xi,yi),b=h(xi+1,yi),c=h(xi,yi+1),d=h(xi+1,yi+1),u=sm(xf),v=sm(yf);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function fbm(x,y,seed){return .55*vnoise(x,y,seed)+.3*vnoise(x*2.1,y*2.1,seed+5)+.15*vnoise(x*4.3,y*4.3,seed+9)}
+function terrain(lon,lat){
+  // warp coordinates so region edges wander like real ecotones
+  const wl=lon+(fbm(lon*.8,lat*.8,1)-.5)*1.1, wa=lat+(fbm(lon*.8,lat*.8,2)-.5)*0.9;
+  const r=fbm(lon*1.8,lat*1.8,3);
+  const m=interp(ANDES,wa);
+  if(wa<-52.6){ if(wa<-54.2&&wl<-66.5) return wl<-68.3&&r<.4?"mtn":"forest"; return r<.42?"pasture":"steppe"; }
+  if(wa<-47.6&&wl<m+0.2) return "ice";
+  if(wl<m) return "mtn";
+  if(wa>-27.3&&wl<-65.6) return r<.3?"mtn":"puna";
+  if(wa>-28.6&&wl<-64.3) return r<.36?"hills":"forest";
+  if(Math.hypot(wl+64.7,(wa+31.5)*1.1)<0.8) return "hills";
+  if(wl>=-59.3&&wa>-34.4){ if(wl>-56.4&&wa>-28.3) return "jungle"; return r<.5?"wet":"pasture"; }
+  if(wa>-29.6&&wl>=-64.3) return r<.34?"forest":"chaco";
+  if(wa>-37.6&&wl<-65.8){ if(Math.hypot(lon+68.6,lat+33.1)<0.7||Math.hypot(lon+68.5,lat+31.6)<0.45||Math.hypot(lon+68.3,lat+34.6)<0.45) return "vine"; return r<.36?"hills":"monte"; }
+  if(wa<-38.4||(wa<-37.6&&wl<-65.8)){ if(wl<m+1.0) return "forest"; return r<.3?"pasture":"steppe"; }
+  const f=fbm(lon*4.2,lat*4.2,6); // farm-scale patchwork
+  if(wl>-59.6&&wa<-35) return f<.36?"wheat":"pasture";
+  if(wa<-37.2) return f<.5?"wheat":"steppe";
+  return f<.44?"wheat":(f<.58?"field":"pasture");
+}
+const TC={wheat:"--t-wheat",field:"--t-field",pasture:"--t-pasture",wet:"--t-wet",jungle:"--t-jungle",forest:"--t-forest",chaco:"--t-chaco",monte:"--t-monte",vine:"--t-vine",puna:"--t-puna",mtn:"--t-mtn",hills:"--t-hills",steppe:"--t-steppe",ice:"--t-ice"};
+const cs=getComputedStyle(document.documentElement);
+const col=k=>cs.getPropertyValue(TC[k]).trim();
+function shade(hex,f){const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=f<0?0:255,p=Math.abs(f);r=Math.round((t-r)*p+r);g=Math.round((t-g)*p+g);b=Math.round((t-b)*p+b);return `rgb(${r},${g},${b})`}
+
+/* ---------- build map ---------- */
+let s="";
+s+=`<defs>
+ <pattern id="waves" width="34" height="18" patternUnits="userSpaceOnUse"><path d="M2 12q6-6 12 0M19 6q6-6 12 0" fill="none" stroke="#bfe6f0" stroke-opacity=".22" stroke-width="1.4" stroke-linecap="round"/></pattern>
+ <radialGradient id="seaG" gradientUnits="userSpaceOnUse" cx="560" cy="820" r="1500"><stop offset="0" stop-color="#2f86ad"/><stop offset="1" stop-color="#174e6e"/></radialGradient>
+ <filter id="blur10" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+ <clipPath id="argclip"><path d="${GEO.countries.ARG}"/></clipPath>
+ <symbol id="tree" viewBox="0 0 20 24"><rect x="9" y="14" width="2.4" height="8" fill="#5a3b20"/><circle cx="10" cy="10" r="7.5" fill="#235f30"/><circle cx="8" cy="8" r="3.6" fill="#3f8a45"/></symbol>
+ <symbol id="pine" viewBox="0 0 20 26"><rect x="9" y="19" width="2.4" height="6" fill="#4a3018"/><path d="M10 1 3 12h4L2 20h16l-5-8h4z" fill="#1f5631"/><path d="M10 1 3 12h4L2 20h8z" fill="#2e7040"/></symbol>
+ <symbol id="palm" viewBox="0 0 20 24"><path d="M10 23V9" stroke="#6b4a26" stroke-width="2"/><path d="M10 9C6 5 2 7 1 9M10 9c4-4 8-2 9 0M10 9C9 4 6 2 3 3M10 9c1-5 4-7 7-6" stroke="#2c7a3a" stroke-width="2.4" fill="none" stroke-linecap="round"/></symbol>
+ <symbol id="peak" viewBox="0 0 40 30"><path d="M0 30 20 0l20 30z" fill="#8a8580"/><path d="M20 0l20 30H22z" fill="#66615c"/><path d="M20 0 13 10.5l3.5-1.5L20 12l3.5-3 3.5 1.5z" fill="#fbfbf6"/></symbol>
+ <symbol id="icepeak" viewBox="0 0 40 30"><path d="M0 30 20 0l20 30z" fill="#dfeef2"/><path d="M20 0l20 30H22z" fill="#b8d3dc"/></symbol>
+ <symbol id="hill" viewBox="0 0 30 16"><path d="M0 16C4 4 12 2 16 7c3-4 10-3 14 9z" fill="#a27742"/><path d="M16 7c3-4 10-3 14 9H18z" fill="#86602f"/></symbol>
+ <symbol id="wheat" viewBox="0 0 20 20"><g stroke="#9a6c12" stroke-width="1.4" stroke-linecap="round" fill="#f7d36a"><path d="M10 19V6M6 19 8 8M14 19l-2-11"/><ellipse cx="10" cy="5" rx="1.8" ry="3.4"/><ellipse cx="7.6" cy="7" rx="1.6" ry="3"/><ellipse cx="12.4" cy="7" rx="1.6" ry="3"/></g></symbol>
+ <symbol id="rows" viewBox="0 0 20 20"><g stroke="#6f8a20" stroke-width="2" stroke-linecap="round" stroke-dasharray="1 3.2"><path d="M3 5h14M3 10h14M3 15h14"/></g></symbol>
+ <symbol id="cow" viewBox="0 0 22 14"><ellipse cx="10" cy="7" rx="7" ry="4.2" fill="#fbf7ee" stroke="#2a2016" stroke-width=".9"/><circle cx="8" cy="6" r="1.7" fill="#2a2016"/><circle cx="12.5" cy="8" r="1.3" fill="#2a2016"/><rect x="15.5" y="3.5" width="5" height="4" rx="1.6" fill="#2a2016"/><path d="M5 10.5v3M8 11v3M12 11v3M15 10.5v3" stroke="#2a2016" stroke-width="1.1"/></symbol>
+ <symbol id="sheep" viewBox="0 0 18 12"><path d="M3 7a3 3 0 0 1 3-4 3 3 0 0 1 5 0 3 3 0 0 1 3 4 3 3 0 0 1-3 3H6a3 3 0 0 1-3-3z" fill="#fffdf6" stroke="#5a4833" stroke-width=".8"/><circle cx="15" cy="6" r="2" fill="#3b2c1b"/><path d="M6 10v2M11 10v2" stroke="#3b2c1b" stroke-width="1"/></symbol>
+ <symbol id="vine" viewBox="0 0 24 16"><g stroke="#4c6b22" stroke-width="2.2" stroke-linecap="round"><path d="M2 3h20M2 8h20M2 13h20"/></g><g fill="#6a2346"><circle cx="5" cy="3" r="1.4"/><circle cx="12" cy="8" r="1.4"/><circle cx="18" cy="3" r="1.4"/><circle cx="8" cy="13" r="1.4"/><circle cx="19" cy="13" r="1.4"/></g></symbol>
+ <symbol id="shrub" viewBox="0 0 14 10"><path d="M1 10c0-4 3-6 6-6s6 2 6 6z" fill="#7d8a3e"/><path d="M4 6 3 2M7 4V0M10 6l1-4" stroke="#5f6a2a" stroke-width="1"/></symbol>
+ <symbol id="cactus" viewBox="0 0 12 20"><path d="M6 19V3M6 10H3V6M6 12h3V7" stroke="#3e6f34" stroke-width="2.6" stroke-linecap="round" fill="none"/></symbol>
+ <symbol id="derrick" viewBox="0 0 20 30"><path d="M4 29 10 2l6 27M6 20h8M7.5 13h5M3 29h14" stroke="#1f1a16" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M10 2V0" stroke="#1f1a16" stroke-width="1.6"/><path d="M10 1h5l-1.4 1.6L15 4h-5z" fill="#c0392b"/></symbol>
+ <symbol id="estancia" viewBox="0 0 26 20"><rect x="3" y="9" width="16" height="10" fill="#fbf4e2" stroke="#5a4833" stroke-width=".8"/><path d="M1 10 11 3l10 7z" fill="#b5462f"/><rect x="9.5" y="13" width="3" height="6" fill="#5a3b20"/><rect x="5" y="12" width="2.4" height="2.4" fill="#5a7ea0"/><rect x="14.6" y="12" width="2.4" height="2.4" fill="#5a7ea0"/><path d="M22 19v-9" stroke="#5a3b20" stroke-width="1.2"/><circle cx="22" cy="9" r="3" fill="#3f8a45"/></symbol>
+ <symbol id="church" viewBox="0 0 24 28"><rect x="3" y="12" width="18" height="15" fill="#fbf4e2" stroke="#5a4833" stroke-width=".8"/><rect x="8" y="4" width="8" height="10" fill="#f6ecd2" stroke="#5a4833" stroke-width=".8"/><path d="M7 4h10l-5-4z" fill="#b5462f"/><path d="M12 0v-2" stroke="#5a4833"/><path d="M10 27v-6a2 2 0 0 1 4 0v6z" fill="#5a3b20"/><circle cx="12" cy="8.5" r="1.5" fill="#5a4833"/></symbol>
+ <symbol id="obelisk" viewBox="0 0 16 40"><path d="M6 38 7 6l1-5 1 5 1 32z" fill="#fbfbf6" stroke="#5a4833" stroke-width=".8"/><rect x="2" y="37" width="12" height="3" fill="#8a8580"/></symbol>
+ <symbol id="light" viewBox="0 0 16 32"><path d="M4 30 5.5 8h5L12 30z" fill="#fbfbf6" stroke="#5a4833" stroke-width=".8"/><path d="M4.9 17h6.2M4.5 24h7" stroke="#c0392b" stroke-width="3"/><rect x="5" y="4" width="6" height="4" fill="#f3d88e" stroke="#5a4833" stroke-width=".8"/><path d="M4 4h8L8 0z" fill="#c0392b"/></symbol>
+ <symbol id="falls" viewBox="0 0 30 22"><path d="M0 4h30v4H0z" fill="#2c7539"/><path d="M3 8h24l2 12H1z" fill="#cfeef6"/><path d="M6 8v12M11 8v12M16 8v12M21 8v12M25 8v12" stroke="#fff" stroke-width="1.6"/><path d="M0 19h30v3H0z" fill="#5fb3d0"/></symbol>
+ <symbol id="glacier" viewBox="0 0 36 22"><path d="M0 22 4 6l6 4 5-8 6 6 5-5 6 8 4 11z" fill="#e8f6fb" stroke="#7fbcd2" stroke-width="1"/><path d="M4 22l2-9 4 3M15 22l2-12 3 5M26 22l1-10" stroke="#9fd2e3" stroke-width="1.2" fill="none"/><path d="M0 22h36" stroke="#5fb3d0" stroke-width="2"/></symbol>
+ <symbol id="ponds" viewBox="0 0 30 20"><rect x="0" y="0" width="30" height="20" rx="2" fill="#f3f1ea"/><g stroke="#f3f1ea" stroke-width="1.4"><rect x="2" y="2" width="8" height="7" fill="#5fc4c0"/><rect x="11" y="2" width="8" height="7" fill="#8ad8d0"/><rect x="20" y="2" width="8" height="7" fill="#b9e9e2"/><rect x="2" y="11" width="8" height="7" fill="#8ad8d0"/><rect x="11" y="11" width="8" height="7" fill="#3fa9b0"/><rect x="20" y="11" width="8" height="7" fill="#d6f2ec"/></g></symbol>
+ <symbol id="salar" viewBox="0 0 30 16"><ellipse cx="15" cy="8" rx="14" ry="7" fill="#f6f4ee"/><path d="M5 8h6M14 5h7M12 11h8" stroke="#d8d3c4" stroke-width="1.2"/></symbol>
+ <symbol id="ship" viewBox="0 0 30 18"><path d="M1 11h28l-4 6H5z" fill="#8a3a24"/><rect x="6" y="5" width="7" height="6" fill="#d6a84a"/><rect x="14" y="5" width="7" height="6" fill="#4b7fa8"/><rect x="22" y="2" width="4" height="9" fill="#fbf4e2"/></symbol>
+ <symbol id="factory" viewBox="0 0 26 20"><path d="M1 19V9l6 4V9l6 4V9l6 4V3h4v16z" fill="#7f9bb2" stroke="#26394a" stroke-width=".9"/><path d="M21 3c0-2 2-3 4-2" stroke="#ccd" stroke-width="1.4" fill="none"/></symbol>
+</defs>`;
+s+=`<rect x="-4000" y="-3000" width="9000" height="8000" fill="url(#seaG)"/><rect x="-4000" y="-3000" width="9000" height="8000" fill="url(#waves)"/>`;
+// shallow-water halo around land
+s+=`<g fill="none" stroke="#8fd0e0" stroke-opacity=".28" stroke-linejoin="round"><path d="${GEO.countries.ARG}" stroke-width="26"/><path d="${GEO.countries.CHL}${GEO.countries.URY}${GEO.countries.BRA}${GEO.countries.FLK}" stroke-width="18"/></g>`;
+// neighbours, flat
+const NB=["PER","BOL","PRY","BRA","URY","CHL","FLK"];
+s+=`<g>`+NB.map(k=>`<path d="${GEO.countries[k]}" fill="${k==="FLK"?"#c9cba1":"#d3cfaa"}" stroke="#7d6f52" stroke-width="1.6" stroke-dasharray="6 4" stroke-linejoin="round"/>`).join("")+`</g>`;
+// neighbour texture: faint hatching dots
+// diorama: shadow + strata
+{const sc=.5,c=document.createElement("canvas");c.width=Math.round(1000*sc);c.height=Math.round(1720*sc);const x=c.getContext("2d");
+ x.setTransform(sc,0,0,sc,0,0);x.shadowColor="rgba(6,33,47,.6)";x.shadowBlur=22*sc;x.shadowOffsetX=10000*sc;x.translate(16-10000,30);x.fill(new Path2D(GEO.countries.ARG));
+ s+=`<image href="${c.toDataURL()}" x="0" y="0" width="1000" height="1720" preserveAspectRatio="none" opacity=".9"/>`;}
+const strata=["#3b2617","#4a3020","#5c3d27","#6e4a2e","#7d5636","#8e6440"];
+for(let k=6;k>=1;k--){s+=`<path d="${GEO.countries.ARG}" transform="translate(${k*1.6},${k*3.2})" fill="${strata[6-k]}" stroke="${strata[Math.max(0,5-k)]}" stroke-width="1"/>`;}
+// top surface base
+s+=`<path d="${GEO.countries.ARG}" fill="${col("pasture")}"/>`;
+// painted terrain: classify a low-res raster, let the browser smooth it when scaled up
+const TX=20,TY=30,TW=900,TH=1620,CELL=3;
+const cw2=Math.round(TW/CELL),ch2=Math.round(TH/CELL);
+const cv=document.createElement("canvas");cv.width=cw2;cv.height=ch2;
+const cx2=cv.getContext("2d"),img=cx2.createImageData(cw2,ch2);
+const rgb={};for(const k in TC){const n=parseInt(col(k).slice(1),16);rgb[k]=[n>>16,n>>8&255,n&255]}
+for(let py=0;py<ch2;py++){const y=TY+(py+.5)*CELL,lat=GEO.lat0-y/GEO.sx;
+  for(let px=0;px<cw2;px++){const x=TX+(px+.5)*CELL,lon=x/(GEO.K*GEO.sx)+GEO.lon0;
+    const t=terrain(lon,lat),c=rgb[t];
+    let k=1+(fbm(lon*2.6,lat*2.6,8)-.5)*(t==="mtn"||t==="puna"?.26:.14);
+    const d=lon-interp(ANDES,lat); if(t!=="mtn"&&t!=="ice"&&d>0&&d<1.6)k*=.86+.14*d/1.6; // foothill shadow
+    const o=(py*cw2+px)*4;img.data[o]=Math.min(255,c[0]*k);img.data[o+1]=Math.min(255,c[1]*k);img.data[o+2]=Math.min(255,c[2]*k);img.data[o+3]=255}}
+cx2.putImageData(img,0,0);
+// upscale with smoothing plus a light blur so region edges read as painted, not pixelated
+const big=document.createElement("canvas");big.width=Math.round(TW*1.6);big.height=Math.round(TH*1.6);
+const bx=big.getContext("2d");bx.imageSmoothingEnabled=true;bx.imageSmoothingQuality="high";
+if("filter" in bx)bx.filter="blur(5px)";
+bx.drawImage(cv,0,0,big.width,big.height);
+if("filter" in bx){bx.filter="none";bx.globalAlpha=.35;bx.drawImage(cv,0,0,big.width,big.height);bx.globalAlpha=1}
+let hex=`<image href="${big.toDataURL("image/jpeg",.86)}" x="${TX}" y="${TY}" width="${TW}" height="${TH}" preserveAspectRatio="none" style="image-rendering:auto"/>`;
+hex+=`<path d="${GEO.countries.ARG}" fill="none" stroke="#fff6dc" stroke-opacity=".45" stroke-width="5"/>`;
+// props scattered on a jittered grid
+const U=(id,x,y,w,h)=>`<use href="#${id}" x="${(x-w/2).toFixed(1)}" y="${(y-h).toFixed(1)}" width="${w}" height="${h}"/>`;
+const toLL=(x,y)=>[x/(GEO.K*GEO.sx)+GEO.lon0,GEO.lat0-y/GEO.sx];
+let props="";const pl=[];
+for(let gy=50;gy<1650;gy+=15)for(let gx=50;gx<830;gx+=15){
+  const x=gx+(hash(gx,gy)-.5)*13,y=gy+(hash(gy+5,gx)-.5)*13;
+  if(!inside(x,y))continue;const [lon,lat]=toLL(x,y);const t=terrain(lon,lat),q=hash(gx+11,gy+7),z=fbm(lon*3,lat*3,12);
+  pl.push([y,(()=>{switch(t){
+    case "forest": return z>.42?(lat<-38?U("pine",x,y,10+q*4,13+q*4):U("tree",x,y,10+q*3,12+q*3)):"";
+    case "jungle": return q<.7?U(q<.45?"tree":"palm",x,y,11+q*3,13+q*3):"";
+    case "chaco": return q<.3?U("tree",x,y,8+q*3,10+q*3):"";
+    case "wheat": return q<.12?U("wheat",x,y,11,11):"";
+    case "field": return q<.12?U("rows",x,y,13,13):"";
+    case "pasture": return q<.07?U("cow",x,y,14,9):(q<.13?U("tree",x,y,7,9):"");
+    case "wet": return q<.07?U("cow",x,y,13,8):(q<.2?U("palm",x,y,8,10):"");
+    case "steppe": return q<.05?U("sheep",x,y,12,8):(q<.15?U("shrub",x,y,10,7):"");
+    case "monte": return q<.14?U("shrub",x,y,10,7):(q<.19?U("cactus",x,y,7,11):"");
+    case "puna": return q<.07?U("cactus",x,y,7,11):"";
+    case "hills": return q<.45?U("hill",x,y,18+q*8,10+q*4):"";
+    case "vine": return q<.8?U("vine",x,y,15,10):"";
+    default: return "";}})()]);
+}
+pl.sort((a,b)=>a[0]-b[0]);props=pl.map(p=>p[1]).join("");
+// the Andes: overlapping peaks on a denser jittered grid, drawn north to south
+const pk=[];
+for(let gy=40;gy<1650;gy+=10)for(let gx=40;gx<520;gx+=11){
+  const x=gx+(hash(gx+3,gy)-.5)*10,y=gy+(hash(gy,gx+9)-.5)*8;
+  if(!inside(x,y))continue;const [lon,lat]=toLL(x,y);const t=terrain(lon,lat);
+  if(t!=="mtn"&&t!=="ice")continue;const q=hash(gx,gy+11);if(t==="ice"&&q<.5)continue;
+  const big=Math.hypot(lon+70.0,lat+32.65)<0.6?1.6:1; // Aconcagua massif
+  const w=(20+q*20)*big;pk.push([y,U(t==="ice"?"icepeak":"peak",x,y+w*.35,w,w*.78)]);
+}
+pk.sort((a,b)=>a[0]-b[0]);const mtns=pk.map(p=>p[1]).join("");
+// landmarks
+const L=(id,lon,lat,w,h)=>{const [x,y]=P(lon,lat);return U(id,x,y,w,h)};
+let marks="";
+marks+=L("salar",-66.2,-23.7,34,18)+L("ponds",-66.75,-23.35,30,20)+L("salar",-67.1,-25.4,30,16)+L("ponds",-67.2,-25.15,26,17)+L("salar",-67.6,-24.6,28,14);
+marks+=L("derrick",-68.9,-37.6,13,20)+L("derrick",-68.4,-38.0,11,17)+L("derrick",-69.2,-38.9,11,17);
+marks+=L("estancia",-61.3,-34.2,22,17)+L("estancia",-59.4,-37.0,22,17)+L("estancia",-63.8,-36.4,20,15)+L("estancia",-58.6,-31.4,20,15);
+marks+=L("church",-65.41,-24.6,18,21)+L("church",-64.5,-31.1,16,19);
+marks+=L("obelisk",-58.6,-34.45,9,24);
+marks+=L("falls",-54.5,-25.6,30,22);
+marks+=L("glacier",-72.9,-50.3,40,24);
+marks+=L("light",-68.0,-54.75,11,22);
+marks+=L("factory",-67.4,-53.5,20,15)+L("factory",-64.0,-31.9,18,14);
+// water
+let water="";
+water+=`<path d="${GEO.lakes}" fill="#5fb3d0" stroke="#3a8fb2" stroke-width="1"/>`;
+const RV=["Paraná","Uruguay","Colorado","Negro","Chubut","Santa Cruz","Salado","Pilcomayo","Neuquén","Desaguadero"];
+water+=`<g fill="none" stroke-linecap="round" stroke-linejoin="round">`+RV.filter(n=>GEO.rivers[n]).map(n=>`<path d="${GEO.rivers[n]}" stroke="#2f7ea3" stroke-width="${n==="Paraná"||n==="Uruguay"?4.6:3.2}"/><path d="${GEO.rivers[n]}" stroke="#8fd0e0" stroke-width="${n==="Paraná"||n==="Uruguay"?2:1.3}"/>`).join("")+`</g>`;
+// provinces
+let prov=`<g fill="none" stroke="#3a2a18" stroke-opacity=".45" stroke-width="1.2" stroke-dasharray="1.5 3.5" stroke-linecap="round">`+Object.values(GEO.prov).map(d=>`<path d="${d}"/>`).join("")+`</g>`;
+s+=`<g clip-path="url(#argclip)">${hex}${water}${prov}${props}${marks}</g>${mtns}`;
+// Civ-style national border
+s+=`<path d="${GEO.countries.ARG}" fill="none" stroke="#6FA9DB" stroke-opacity=".55" stroke-width="4.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/><path d="${GEO.countries.ARG}" fill="none" stroke="#fff" stroke-width="1.3" stroke-dasharray="5 3" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+// sea lane + ship
+{const a=P(-60.7,-32.9),b=P(-57.2,-35.4),c=P(-53.5,-37.2),d=P(-49.5,-37.5);
+ s+=`<path d="M${a} Q${b} ${b} T${c} L${d}" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2.2" stroke-dasharray="2 7" stroke-linecap="round"/>`;
+ const sh=P(-54.2,-37.0); s+=U("ship",sh[0],sh[1],34,20);
+ const tl=P(-54.0,-38.1); s+=`<text class="msea" x="${tl[0]}" y="${tl[1]}" font-size="15" text-anchor="middle">to Brazil, China, Vietnam</text>`;}
+// sea & country labels
+const T=(cls,lon,lat,txt,size,rot=0,anchor="middle")=>{const [x,y]=P(lon,lat);return `<text class="${cls}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="${size}" text-anchor="${anchor}"${rot?` transform="rotate(${rot} ${x.toFixed(1)} ${y.toFixed(1)})"`:""}>${txt}</text>`};
+s+=T("msea",-57.0,-46.8,"Océano Atlántico",30)+T("msea",-75.3,-41,"Océano Pacífico",26,-90);
+s+=`<g aria-hidden="true">`+T("mcountry over-sea",-73.9,-29.2,"CHILE",23)+T("mcountry",-62.6,-21.35,"BOLIVIA",20)+T("mcountry",-58.9,-22.8,"PARAGUAY",19)+T("mcountry",-53.5,-23.2,"BRASIL",22)+T("mcountry",-55.5,-32.7,"URUGUAY",17)+`</g>`;
+s+=T("mregion",-59.3,-50.85,"Islas Malvinas / Falkland Is.",12.5)+T("mregion",-59.3,-52.75,"UK-administered; claimed by Argentina",10.5);
+// region names
+s+=T("mregion",-66.4,-25.6,"La Puna",17)+T("mregion",-61.4,-26.1,"Gran Chaco",19)+T("mregion",-57.6,-29.4,"Mesopotamia",16,-62)+T("mregion",-62.3,-33.6,"La Pampa Húmeda",19)+T("mregion",-67.6,-31.0,"Cuyo",17)+T("mregion",-68.4,-43.4,"Patagonia",24)+T("mregion",-70.0,-46.5,"Andes",15,-80);
+// compass + scale
+{const [cx,cy]=P(-53.2,-49.4);let c=`<g transform="translate(${cx},${cy})" aria-hidden="true"><circle r="34" fill="none" stroke="#e7f4f8" stroke-opacity=".7" stroke-width="1.3"/><circle r="27" fill="none" stroke="#e7f4f8" stroke-opacity=".45" stroke-dasharray="2 3"/>`;
+ c+=`<path d="M0-46 7-7 0 0-7-7z" fill="#F3D88E"/><path d="M0 46 7 7 0 0-7 7z" fill="#e7f4f8" fill-opacity=".8"/><path d="M-46 0-7-7 0 0-7 7zM46 0 7-7 0 0 7 7z" fill="#e7f4f8" fill-opacity=".6"/><text y="-52" text-anchor="middle" class="msea" font-size="16" font-style="normal">N</text></g>`;s+=c;
+ const [sx0,sy0]=P(-53.2,-52.8), kmPx=GEO.sx/111.2*500; s+=`<g aria-hidden="true"><path d="M${sx0-kmPx/2} ${sy0}h${kmPx}" stroke="#e7f4f8" stroke-width="3"/><path d="M${sx0-kmPx/2} ${sy0}h${kmPx/2}" stroke="#123" stroke-width="3" stroke-opacity=".5"/><text class="msea" x="${sx0}" y="${sy0+20}" text-anchor="middle" font-size="14" font-style="normal">500 km</text></g>`;}
+// cities
+const CITY=[["Córdoba",-64.18,-31.42,0,"end",-30,-12],["Rosario",-60.65,-32.95,0,"start",28,-14],["Mendoza",-68.84,-32.89,0,"start",14,-8],["Salta",-65.41,-24.78,0,"start",12,-6],["Tucumán",-65.2,-26.82,0,"start",12,5],["Neuquén",-68.06,-38.95,0,"start",12,12],["Bahía Blanca",-62.27,-38.72,0,"start",12,5],["Comodoro Rivadavia",-67.48,-45.86,0,"end",-12,-8],["Bariloche",-71.3,-41.13,0,"start",12,5],["El Calafate",-72.27,-50.34,0,"start",14,16],["Ushuaia",-68.3,-54.8,0,"end",-12,16],["Iguazú",-54.44,-25.69,0,"end",-16,14]];
+let cities="";
+for(const [n,lo,la,cap,anc,dx,dy] of CITY){const [x,y]=P(lo,la);
+  const ci=CITIES.find(c=>c.name===n);
+  cities+=`<g class="city" data-id="${ci.id}" tabindex="0" role="button" aria-label="${esc(n)}: show details" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" transform="translate(${x.toFixed(1)},${y.toFixed(1)})"><circle r="13" fill="transparent"/>`;
+  cities+=cap?`<path d="M0 -8l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6L0 6.2l-5 3 1.2-5.6-4.2-3.8 5.6-.6z" fill="#F3D88E" stroke="#2a2016" stroke-width="1.2"/>`:`<rect x="-4.5" y="-4.5" width="9" height="9" fill="#fbf4e2" stroke="#2a2016" stroke-width="1.8" transform="rotate(45)"/>`;
+  cities+=`<text class="mlabel" x="${dx}" y="${dy}" font-size="${cap?17:15.5}" text-anchor="${anc}"${cap?' font-weight="700"':""}>${n}</text></g>`;}
+s+=`<g id="cities">${cities}</g>`;
+// title cartouche over the Atlantic
+{const [x,y]=P(-54.4,-42.0);
+ s+=`<g class="cartouche" aria-hidden="true" transform="translate(${x},${y})"><path d="M-150-58h300l14 14v80l-14 14h-300l-14-14v-80z" fill="#f1e4c4" stroke="#5a4833" stroke-width="1.6"/><path d="M-143-51h286l9 9v72l-9 9h-286l-9-9v-72z" fill="none" stroke="#b6985f" stroke-width="1"/>
+ <text x="0" y="-8" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-size="46" fill="#2a2016">Argentina</text>
+ <text x="0" y="22" text-anchor="middle" font-family="IM Fell English, Georgia, serif" font-style="italic" font-size="16" fill="#5a4833">Resources &amp; trade of the Republic</text>
+ <path d="M-60 34h120" stroke="#b6985f"/><text x="0" y="45" text-anchor="middle" font-family="Alegreya Sans, sans-serif" font-size="11" fill="#5a4833">Data: World Bank · UN Comtrade · BCRA · EIA · USGS</text></g>`;}
+// markers
+function marker(d,isP){
+  const [x,y]=P(d.lon,d.lat);
+  if(d.kind==="info")return `<g class="mk info" data-id="${d.id}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" tabindex="0" role="button" aria-label="Malvinas / Falkland Islands: show details" transform="translate(${x},${y})">
+    <circle class="ring" r="19"/><circle r="15" fill="#12293A" stroke="#2a2016" stroke-width="1.4"/><circle class="rim" r="12.5" fill="none" stroke="#D6A84A" stroke-width="2.4"/>
+    <text y="6" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-weight="700" font-size="17" fill="#F3D88E">i</text></g>`;
+  if(d.kind==="capital")return `<g class="mk cap" data-id="${d.id}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" tabindex="0" role="button" aria-label="Buenos Aires, the capital: show details" transform="translate(${x},${y})">
+    <circle class="ring" r="24"/><circle r="20" fill="#12293A" opacity=".35"/>
+    <path class="rim" d="${star(0,0,17.5)}" fill="#F3D88E" stroke="#2a2016" stroke-width="1.6" stroke-linejoin="round"/>
+    <g transform="translate(17,-17)"><circle r="8.5" fill="#12293A" stroke="#F3D88E" stroke-width="1.8"/><text y="4.2" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-weight="700" font-size="12" fill="#F3D88E">i</text></g>
+    <text class="mlabel" x="22" y="22" font-size="18" font-weight="700">Buenos Aires</text></g>`;
+  if(isP){
+    return `<g class="mk" data-id="${d.id}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" tabindex="0" role="button" aria-label="${esc(d.name+': '+d.short)}" transform="translate(${x},${y})">
+      <circle class="ring" r="16"/><path d="M0 14V-21" stroke="#2a2016" stroke-width="2"/><clipPath id="pen-${d.id}"><path d="M0-21h30l-6 8.5 6 8.5H0z"/></clipPath><g clip-path="url(#pen-${d.id})"><svg x="0" y="-21" width="30" height="17" viewBox="0 0 30 20" preserveAspectRatio="none">${FLAGS[d.id](30,20)}</svg></g><path d="M0-21h30l-6 8.5 6 8.5H0z" fill="none" stroke="#2a2016" stroke-width="1.4" class="rim"/>
+      <circle r="4" fill="#2a2016"/></g>`;
+  }
+  return `<g class="mk" data-id="${d.id}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}" tabindex="0" role="button" aria-label="${esc(d.name+', '+d.region)}" transform="translate(${x},${y})">
+    <ellipse cx="2" cy="25" rx="11" ry="3.5" fill="#000" opacity=".25"/>
+    <path d="M-5 14 0 25 5 14z" fill="#D6A84A" stroke="#2a2016" stroke-width="1"/>
+    <circle class="ring" r="22"/>
+    <circle r="18" fill="${d.c1}" stroke="#2a2016" stroke-width="1.5"/>
+    <circle class="rim" r="16" fill="none" stroke="#D6A84A" stroke-width="2.6"/>
+    <circle r="13" fill="url(#rg-${d.id})"/>
+    <g transform="translate(-10,-10) scale(.84)" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d.icon}"/></g>
+    <text class="mlabel" y="41" text-anchor="middle" font-size="14">${esc(d.short)}</text></g>`;
+}
+let grads="";for(const d of R)grads+=`<radialGradient id="rg-${d.id}" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="${d.c2}"/><stop offset="1" stop-color="${d.c1}"/></radialGradient>`;
+s+=`<defs>${grads}</defs>`;
+s+=`<g id="pins">`+PTN.map(d=>marker(d,true)).join("")+R.map(d=>marker(d,false)).join("")+marker(FLK)+marker(CAP)+`</g>`;
+map.innerHTML=s;
+
+/* ---------- legend + panel ---------- */
+const rnd=d=>FLAGS[d.id]?`<span class="roundel flagged" aria-hidden="true">${flagBadge(d.id)}</span>`:`<span class="roundel" style="--c1:${d.c1};--c2:${d.c2}" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d.icon}"/></svg></span>`;
+const li=d=>`<li><button type="button" class="lg-btn" data-id="${d.id}" aria-pressed="false">${rnd(d)}<span>${esc(d.name)}<small>${esc(d.short===d.name?d.region:d.short)}</small></span></button></li>`;
+$("#lg-res").innerHTML=R.map(li).join("");
+$("#lg-par").innerHTML=PTN.map(li).join("");
+$("#lg-cap").innerHTML=li(CAP)+li(FLK);
+$("#lg-city").innerHTML=CITIES.map(c=>li({...c,short:c.region})).join("");
+const hero=$("#top");
+function closeInfo(){hero.classList.add("no-info");hero.classList.remove("sheet-full");$("#i-more").setAttribute("aria-expanded","false");document.querySelectorAll(".mk,.city").forEach(m=>m.classList.remove("on"));document.querySelectorAll(".lg-btn").forEach(b=>b.setAttribute("aria-pressed","false"))}
+let booted=false;
+function pick(id,fly){
+  const d=ALL.find(x=>x.id===id); if(!d)return;
+  const wasClosed=hero.classList.contains("no-info");hero.classList.remove("no-info");if(wasClosed)setFull(false);
+  $("#i-icon").setAttribute("style",`--c1:${d.c1};--c2:${d.c2}`);
+  $("#i-icon").classList.toggle("flagged",!!FLAGS[d.id]);
+  $("#i-icon").innerHTML=FLAGS[d.id]?flagBadge(d.id):`<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d.icon}"/></svg>`;
+  $("#i-name").textContent=d.name; $("#i-region").textContent=d.region;
+  $("#i-big").textContent=d.big; $("#i-biglab").textContent=d.bigLabel;
+  $("#i-stats").innerHTML=d.stats.map(([k,src,v])=>`<li><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span><span class="s">${esc(src)}</span></li>`).join("");
+  $("#i-note").innerHTML=d.note; const g=$("#i-go"); g.href=d.go; g.textContent=d.cta;
+  g.onclick=d.rel?(e=>{e.preventDefault();pick(d.rel,true)}):null;
+  document.querySelectorAll(".mk,.city").forEach(m=>m.classList.toggle("on",m.dataset.id===id));
+  document.querySelectorAll(".lg-btn").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===id?"true":"false"));
+  const pin=map.querySelector(`[data-id="${id}"]`); if(pin)pin.parentNode.appendChild(pin);
+  if(SMALL.matches){requestAnimationFrame(updatePeek);const sr=stage.getBoundingClientRect();if(booted&&(sr.bottom>innerHeight+2||sr.top<0))stage.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})}
+  if(fly){const [x,y]=P(d.lon,d.lat);flyTo(x,y,Math.min(vb.w,VB0.w/2.6))}
+  else if(SMALL.matches&&pin&&booted)keepVisible(pin);
+}
+/* ---------- bottom sheet (screens under 1180px) ---------- */
+const SMALL=matchMedia("(max-width:1179px)");
+const infoSide=$("#info-side");
+function placeInfo(){if(SMALL.matches){if(infoSide.parentNode!==stage){stage.appendChild(infoSide);infoSide.classList.add("sheet")}requestAnimationFrame(updatePeek)}
+  else if(infoSide.parentNode!==hero){hero.appendChild(infoSide);infoSide.classList.remove("sheet");setFull(false)}}
+function updatePeek(){if(!SMALL.matches)return;const head=infoSide.querySelector(".info-head"),big=infoSide.querySelector(".bigfig strong");
+  const top=infoSide.getBoundingClientRect().top;const peek=Math.round(big.getBoundingClientRect().bottom-infoSide.querySelector(".info").getBoundingClientRect().top+14);
+  const p=Math.max(120,Math.min(peek,240))+"px";infoSide.style.setProperty("--peek",p);stage.style.setProperty("--peek",p)}
+function setFull(on){hero.classList.toggle("sheet-full",on);$("#i-more").setAttribute("aria-expanded",String(on));$("#i-more").textContent=on?"Less":"Details";if(!on)$("#i-body").scrollTop=0}
+$("#i-more").addEventListener("click",e=>{e.stopPropagation();setFull(!hero.classList.contains("sheet-full"))});
+// keep a tapped marker from hiding under the sheet
+function keepVisible(pin){const sr=stage.getBoundingClientRect(),pr=pin.getBoundingClientRect();const peek=parseFloat(getComputedStyle(stage).getPropertyValue("--peek"))||170;
+  const limit=sr.bottom-peek-24;if(pr.bottom<=limit&&pr.top>=sr.top)return;
+  const s=toMap(0,0)[2];const [mx,my]=toMap(pr.left+pr.width/2,pr.top+pr.height/2);
+  const w=Math.min(vb.w,VB0.w/1.6),h=w*AR;const visH=(sr.height-peek)/ (Math.min(sr.width/w,sr.height/h));
+  animateTo(mx-w/2,my-visH*0.45,w)}
+// swipe the sheet: up to expand, down to shrink or close
+{let st=null;const head=infoSide.querySelector(".info-head"),grab=infoSide.querySelector(".grab");
+ const down=e=>{if(!SMALL.matches||e.target.closest("button"))return;const h=infoSide.getBoundingClientRect().height,peek=parseFloat(infoSide.style.getPropertyValue("--peek"))||170;
+   const full=hero.classList.contains("sheet-full");st={y:e.clientY,base:full?0:h-peek,h,peek,full,moved:false};infoSide.classList.add("dragging");try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}};
+ const move=e=>{if(!st)return;const dy=e.clientY-st.y;if(Math.abs(dy)>5)st.moved=true;const t=Math.max(0,Math.min(st.h,st.base+dy));infoSide.style.transform=`translateY(${t}px)`};
+ const up=e=>{if(!st)return;const dy=e.clientY-st.y;infoSide.classList.remove("dragging");infoSide.style.transform="";
+   if(!st.moved){setFull(!st.full)}else if(dy<-40)setFull(true);else if(dy>60){if(st.full&&dy<st.h-st.peek-40)setFull(false);else closeInfo()}
+   st=null};
+ for(const el of [head,grab]){el.addEventListener("pointerdown",down);el.addEventListener("pointermove",move);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)}}
+SMALL.addEventListener?SMALL.addEventListener("change",placeInfo):SMALL.addListener(placeInfo);
+window.addEventListener("resize",()=>requestAnimationFrame(updatePeek));
+document.querySelectorAll(".lg-btn").forEach(b=>b.addEventListener("click",()=>pick(b.dataset.id,true)));
+let closeT=0;
+map.addEventListener("click",e=>{if(moved)return;const m=e.target.closest(".mk,.city");clearTimeout(closeT);
+  if(m)pick(m.dataset.id);else closeT=setTimeout(closeInfo,260)}); // a click on open map closes the panel
+$("#i-close").addEventListener("click",()=>{closeInfo();map.focus({preventScroll:true})});
+map.addEventListener("keydown",e=>{const m=e.target.closest(".mk,.city");if(m&&(e.key==="Enter"||e.key===" ")){e.preventDefault();pick(m.dataset.id)}});
+
+/* ---------- navigation: wheel/pinch/double-click zoom, drag to pan, bounded to the frame ---------- */
+const vb={...VB0}, MINW=VB0.w/5, AR=VB0.h/VB0.w;
+const stage=$("#stage");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarse=matchMedia("(pointer: coarse)").matches;
+const full=()=>vb.w>=VB0.w-0.5;
+function sheetRoom(){if(typeof SMALL==="undefined"||!SMALL.matches||hero.classList.contains("no-info")||full())return 0;
+  const rc=map.getBoundingClientRect();if(!rc.height)return 0;const sc=Math.min(rc.width/vb.w,rc.height/vb.h);return (parseFloat(getComputedStyle(stage).getPropertyValue("--peek"))||170)/sc}
+function clampVB(){vb.w=Math.min(VB0.w,Math.max(MINW,vb.w));vb.h=vb.w*AR;vb.x=Math.min(VB0.x+VB0.w-vb.w,Math.max(VB0.x,vb.x));vb.y=Math.min(VB0.y+VB0.h-vb.h+sheetRoom(),Math.max(VB0.y,vb.y))}
+const mkEls=[...map.querySelectorAll(".mk")], cityEls=[...map.querySelectorAll(".city")];
+let raf=0;
+function applyVB(){clampVB();if(!raf)raf=requestAnimationFrame(render)}
+function render(){raf=0;
+  map.setAttribute("viewBox",`${vb.x.toFixed(2)} ${vb.y.toFixed(2)} ${vb.w.toFixed(2)} ${vb.h.toFixed(2)}`);
+  const z=!full(),r=vb.w/VB0.w;stage.classList.toggle("zoomed",z);
+  $("#zout").disabled=!z;$("#zreset").disabled=!z;$("#zin").disabled=vb.w<=MINW+1;
+  const k=(1.4*Math.pow(r,.55)).toFixed(3),kc=(1.55*Math.pow(r,.75)).toFixed(3);
+  for(const m of mkEls)m.setAttribute("transform",`translate(${m.dataset.x},${m.dataset.y}) scale(${k})`);
+  for(const c of cityEls)c.setAttribute("transform",`translate(${c.dataset.x},${c.dataset.y}) scale(${kc})`);
+  mmView.setAttribute("x",vb.x);mmView.setAttribute("y",vb.y);mmView.setAttribute("width",vb.w);mmView.setAttribute("height",vb.h);
+}
+// screen point -> map units, using the same "meet" fit the SVG uses
+function toMap(cx,cy){const rc=map.getBoundingClientRect(),s=Math.min(rc.width/vb.w,rc.height/vb.h);
+  return [vb.x+(cx-rc.left-(rc.width-vb.w*s)/2)/s, vb.y+(cy-rc.top-(rc.height-vb.h*s)/2)/s, s]}
+function zoomAt(f,mx,my){const nw=Math.min(VB0.w,Math.max(MINW,vb.w/f)),q=nw/vb.w;vb.x=mx-(mx-vb.x)*q;vb.y=my-(my-vb.y)*q;vb.w=nw;vb.h=nw*AR;applyVB()}
+let anim=0;
+function animateTo(tx,ty,tw,dur=520){cancelAnimationFrame(anim);
+  const t={w:Math.min(VB0.w,Math.max(MINW,tw))};t.h=t.w*AR;t.x=tx;t.y=ty;
+  const box={...vb};Object.assign(vb,t);clampVB();const end={...vb};Object.assign(vb,box);
+  if(reduce){Object.assign(vb,end);applyVB();return}
+  const t0=performance.now(),ease=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+  const step=now=>{const u=Math.min(1,(now-t0)/dur),e=ease(u);
+    vb.x=box.x+(end.x-box.x)*e;vb.y=box.y+(end.y-box.y)*e;vb.w=box.w+(end.w-box.w)*e;vb.h=vb.w*AR;applyVB();if(u<1)anim=requestAnimationFrame(step)};
+  anim=requestAnimationFrame(step)}
+function flyTo(x,y,w){animateTo(x-w/2,y-w*AR/2,w)}
+const zoomCenter=f=>{const w=vb.w/f;flyTo(vb.x+vb.w/2,vb.y+vb.h/2,w)};
+$("#zin").onclick=()=>zoomCenter(1.7);$("#zout").onclick=()=>zoomCenter(1/1.7);$("#zreset").onclick=()=>animateTo(VB0.x,VB0.y,VB0.w);
+
+// wheel / trackpad: zooms toward the pointer. At full view, scrolling down (or up once the
+// page has moved) is left to the page so the map never traps the reader.
+let padUntil=0;
+map.addEventListener("wheel",e=>{
+  const k=e.deltaMode===1?16:e.deltaMode===2?innerHeight:1, dx=e.deltaX*k, dy=e.deltaY*k;
+  // trackpads report wheelDeltaY = -3 × deltaY (Chrome, Safari) or sideways motion; mouse wheels do not
+  let pad=e.wheelDeltaY?(e.wheelDeltaY===-3*e.deltaY||e.deltaX!==0):(e.deltaMode===0&&Math.abs(e.deltaY)<50);
+  if(performance.now()<padUntil)pad=true;
+  if(e.ctrlKey){ // pinch on a trackpad (or ctrl + wheel)
+    e.preventDefault();cancelAnimationFrame(anim);const [mx,my]=toMap(e.clientX,e.clientY);zoomAt(Math.exp(-dy*.012),mx,my);return}
+  if(pad){padUntil=performance.now()+120;
+    if(full()){if(Math.abs(dx)>Math.abs(dy))e.preventDefault();return} // nothing to move: let the page scroll
+    e.preventDefault();cancelAnimationFrame(anim);const s=toMap(0,0)[2];vb.x+=dx/s;vb.y+=dy/s;applyVB();return}
+  if(full()&&(dy>0||window.scrollY>10))return; // mouse wheel at full view: page scrolls down
+  e.preventDefault();cancelAnimationFrame(anim);const [mx,my]=toMap(e.clientX,e.clientY);zoomAt(Math.exp(-dy*.0025),mx,my);
+},{passive:false});
+map.addEventListener("dblclick",e=>{e.preventDefault();clearTimeout(closeT);const [mx,my]=toMap(e.clientX,e.clientY);const w=vb.w/(e.shiftKey?1/2:2);animateTo(mx-(mx-vb.x)*w/vb.w,my-(my-vb.y)*w/vb.w,w,380)});
+
+// pointers: one = pan (touch only once zoomed, so the page still scrolls), two = pinch
+const ptrs=new Map();let drag=null,pinch=null,moved=false;
+map.addEventListener("pointerdown",e=>{
+  moved=false;
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];const [mx,my]=toMap((a.x+b.x)/2,(a.y+b.y)/2);pinch={d:Math.hypot(a.x-b.x,a.y-b.y),w:vb.w,mx,my};drag=null;try{map.setPointerCapture(e.pointerId)}catch(_){}return}
+  if(e.pointerType==="touch"&&full())return;
+  cancelAnimationFrame(anim);drag={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y,s:toMap(0,0)[2]};
+});
+map.addEventListener("pointermove",e=>{
+  if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pinch&&ptrs.size>=2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);const nw=pinch.w*pinch.d/Math.max(d,1);zoomAt(vb.w/nw,pinch.mx,pinch.my);moved=true;return}
+  if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(!moved&&Math.abs(dx)+Math.abs(dy)>4){moved=true;stage.classList.add("dragging");try{map.setPointerCapture(e.pointerId)}catch(_){}}
+  if(moved){vb.x=drag.vx-dx/drag.s;vb.y=drag.vy-dy/drag.s;applyVB()}
+});
+const endPtr=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;if(ptrs.size===0){drag=null;stage.classList.remove("dragging")}};
+map.addEventListener("pointerup",endPtr);map.addEventListener("pointercancel",endPtr);
+
+// keyboard: + / - zoom, arrows pan, 0 resets (when the map itself has focus)
+map.addEventListener("keydown",e=>{
+  if(e.target!==map)return;const st=vb.w*.18;let hit=true;
+  switch(e.key){case "+":case "=":zoomCenter(1.5);break;case "-":case "_":zoomCenter(1/1.5);break;case "0":animateTo(VB0.x,VB0.y,VB0.w);break;
+    case "ArrowLeft":animateTo(vb.x-st,vb.y,vb.w,200);break;case "ArrowRight":animateTo(vb.x+st,vb.y,vb.w,200);break;
+    case "ArrowUp":animateTo(vb.x,vb.y-st,vb.w,200);break;case "ArrowDown":animateTo(vb.x,vb.y+st,vb.w,200);break;default:hit=false}
+  if(hit)e.preventDefault()});
+
+// minimap: the whole frame with a box for the current view; click or drag to jump
+const mm=$("#minimap");
+mm.setAttribute("viewBox",`${VB0.x} ${VB0.y} ${VB0.w} ${VB0.h}`);
+mm.innerHTML=`<rect x="${VB0.x}" y="${VB0.y}" width="${VB0.w}" height="${VB0.h}" fill="#2479A0"/>`+
+  ["CHL","BOL","PRY","BRA","URY","FLK"].map(k=>`<path d="${GEO.countries[k]}" fill="#cfcaa3"/>`).join("")+
+  `<path d="${GEO.countries.ARG}" fill="#9bbd5a" stroke="#6FA9DB" stroke-width="6"/><rect id="mm-view" fill="rgba(243,216,142,.18)" stroke="#F3D88E" stroke-width="10"/>`;
+const mmView=$("#mm-view");
+let mmDrag=false;
+const mmJump=e=>{const rc=mm.getBoundingClientRect();const x=VB0.x+(e.clientX-rc.left)/rc.width*VB0.w,y=VB0.y+(e.clientY-rc.top)/rc.height*VB0.h;cancelAnimationFrame(anim);vb.x=x-vb.w/2;vb.y=y-vb.h/2;applyVB()};
+mm.addEventListener("pointerdown",e=>{mmDrag=true;mm.setPointerCapture(e.pointerId);mmJump(e)});
+mm.addEventListener("pointermove",e=>{if(mmDrag)mmJump(e)});
+mm.addEventListener("pointerup",()=>mmDrag=false);mm.addEventListener("pointercancel",()=>mmDrag=false);
+// full map: hide both side panels (and go fullscreen where the browser allows it)
+const xb=$("#zfull");
+const ICON_OUT='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+const ICON_IN='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg>';
+function setMapOnly(on){hero.classList.toggle("map-only",on);xb.setAttribute("aria-pressed",String(on));xb.setAttribute("aria-label",on?"Exit full map":"Show full map");xb.title=on?"Exit full map (Esc)":"Full map (hide panels)";xb.innerHTML=on?ICON_IN:ICON_OUT;if(on)closeInfo()}
+xb.innerHTML=ICON_OUT;
+xb.addEventListener("click",()=>{const on=!hero.classList.contains("map-only");setMapOnly(on);
+  try{if(on&&hero.requestFullscreen)hero.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(_){}});
+document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&hero.classList.contains("map-only"))setMapOnly(false)});
+document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;
+  if(hero.classList.contains("sheet-full")){setFull(false);return}
+  if(!hero.classList.contains("no-info")&&hero.contains(document.activeElement)||hero.classList.contains("map-only")&&!hero.classList.contains("no-info")){closeInfo();return}
+  if(hero.classList.contains("map-only"))setMapOnly(false)});
+$("#hint").textContent=coarse?"Pinch to zoom, drag to move":"Pinch, scroll or double-click to zoom. Drag or two-finger swipe to move";
+render();
+placeInfo();
+pick("oil");
+booted=true;
+
+/* ---------- charts ---------- */
+const W=720;
+const sc=(d0,d1,r0,r1)=>v=>r0+(v-d0)/(d1-d0)*(r1-r0);
+const C=n=>cs.getPropertyValue(n).trim();
+function svg(w,h,inner,label){return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">${inner}</svg>`}
+
+// Fig 1 GDP
+(function(){const d=DATA.gdp,h=300,m={l:52,r:48,t:14,b:30};const x=i=>m.l+i*(W-m.l-m.r)/d.length;const bw=(W-m.l-m.r)/d.length*.68;
+ const yL=sc(0,800,h-m.b,m.t),yR=sc(-12,12,h-m.b,m.t);let g="";
+ for(let v=0;v<=800;v+=200)g+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${yL(v)}" y2="${yL(v)}"/><text x="${m.l-8}" y="${yL(v)+4}" text-anchor="end">${v}</text>`;
+ for(let v=-12;v<=12;v+=6)g+=`<text x="${W-m.r+8}" y="${yR(v)+4}">${v>0?"+":""}${v}%</text>`;
+ g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${yR(0)}" y2="${yR(0)}" stroke="${C("--ink-2")}" stroke-dasharray="4 3" stroke-width=".8"/>`;
+ d.forEach(([yr,v],i)=>{g+=`<rect x="${x(i)+((W-m.l-m.r)/d.length-bw)/2}" y="${yL(v)}" width="${bw}" height="${yL(0)-yL(v)}" fill="${C("--t-wheat")}" stroke="#a6761f" stroke-width=".8"><title>${yr}: $${v} bn</title></rect>`;if(yr%5===0)g+=`<text x="${x(i)+(W-m.l-m.r)/d.length/2}" y="${h-10}" text-anchor="middle">${yr}</text>`});
+ const pts=d.map(([yr,v,gr],i)=>[x(i)+(W-m.l-m.r)/d.length/2,yR(gr)]);
+ g+=`<path d="M${pts.join("L")}" fill="none" stroke="${C("--celeste-ink")}" stroke-width="2.4"/>`+pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.4" fill="${d[i][2]<0?C("--bad"):C("--celeste-ink")}"><title>${d[i][0]}: ${d[i][2]}%</title></circle>`).join("");
+ g+=`<text x="${m.l}" y="${m.t-2}" class="lab">US$ bn</text><text x="${W-m.r}" y="${m.t-2}" class="lab" text-anchor="end">growth</text>`;
+ g+=`<text x="${pts[15][0]}" y="${pts[15][1]+18}" text-anchor="middle" class="lab">2020: ${d[15][2]}%</text>`;
+ $("#fig-gdp").innerHTML=svg(W,h,g,"GDP in US dollars and real growth, 2005 to 2025")})();
+
+// Fig 2 WGI dot strips
+(function(){const dims=[["VA","Voice & accountability"],["PV","Political stability"],["GE","Government effectiveness"],["RQ","Regulatory quality"],["RL","Rule of law"],["CC","Control of corruption"]];
+ const cc=[["ARG","Argentina",C("--celeste-ink"),8],["CHL","Chile",C("--s2"),5.5],["BRA","Brazil",C("--s3"),5.5],["URY","Uruguay",C("--s4"),5.5]];
+ $("#wgi-key").innerHTML=cc.map(c=>`<span><i style="background:${c[2]};border-radius:50%"></i>${c[1]}</span>`).join("");
+ const m={l:190,r:20,t:10,b:30},rh=40,h=m.t+dims.length*rh+m.b,x=sc(0,100,m.l,W-m.r);let g="";
+ for(let v=0;v<=100;v+=25)g+=`<line class="grid" x1="${x(v)}" x2="${x(v)}" y1="${m.t}" y2="${h-m.b}"/><text x="${x(v)}" y="${h-10}" text-anchor="middle">${v}</text>`;
+ dims.forEach(([k,n],i)=>{const y=m.t+i*rh+rh/2;g+=`<text x="${m.l-12}" y="${y+4}" text-anchor="end" class="lab">${n}</text><line x1="${x(0)}" x2="${x(100)}" y1="${y}" y2="${y}" stroke="${C("--rule")}"/>`;
+  cc.slice().reverse().forEach(([c,cn,co,rr])=>{const v=DATA.wgi[c][k];g+=`<circle cx="${x(v)}" cy="${y}" r="${rr}" fill="${co}" stroke="#fff" stroke-width="1.2"><title>${cn}: ${v}</title></circle>`});
+  g+=`<text x="${x(DATA.wgi.ARG[k])}" y="${y-11}" text-anchor="middle" class="lab" font-weight="700">${DATA.wgi.ARG[k]}</text>`});
+ $("#fig-wgi").innerHTML=svg(W,h,g,"Governance scores for Argentina, Chile, Brazil and Uruguay")})();
+
+// Fig 3 openness
+(function(){const S=[["ARG","Argentina",C("--celeste-ink"),3.4],["CHL","Chile",C("--s2"),1.6],["MEX","Mexico",C("--s4"),1.6],["URY","Uruguay",C("--s3"),1.6],["LCN","Latin America & Caribbean",C("--ink-2"),1.6],["BRA","Brazil",C("--s5"),1.6]];
+ const h=320,m={l:40,r:180,t:12,b:30};const x=sc(2005,2025,m.l,W-m.r),y=sc(0,100,h-m.b,m.t);let g="";
+ for(let v=0;v<=100;v+=20)g+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+ for(let yr=2005;yr<=2025;yr+=5)g+=`<text x="${x(yr)}" y="${h-10}" text-anchor="middle">${yr}</text>`;
+ const ends=[];
+ S.slice().reverse().forEach(([k,n,co,w])=>{const d=DATA.open[k];if(!d)return;g+=`<path d="M${d.map(([yr,v])=>[x(yr),y(v)]).join("L")}" fill="none" stroke="${co}" stroke-width="${w}"/>`;const l=d[d.length-1];ends.push({n,co,yv:y(l[1]),v:l[1],k})});
+ ends.sort((a,b)=>a.yv-b.yv);for(let i=1;i<ends.length;i++)if(ends[i].yv-ends[i-1].yv<15)ends[i].yv=ends[i-1].yv+15;
+ ends.forEach(e=>g+=`<text x="${W-m.r+8}" y="${e.yv+4}" fill="${e.co}" style="fill:${e.co}" font-weight="${e.k==="ARG"?700:400}">${e.n} ${fmt(e.v,0)}%</text>`);
+ g+=`<text x="${m.l}" y="${m.t-2}" class="lab">% of GDP</text>`;
+ $("#fig-open").innerHTML=svg(W,h,g,"Trade openness for Argentina and regional peers, 2005 to 2025")})();
+
+// Fig 4 balances
+(function(){const d=DATA.bal,h=300,m={l:40,r:10,t:14,b:30};const n=d.length,cw=(W-m.l-m.r)/n,bw=cw*.36;const y=sc(-20,25,h-m.b,m.t);let g="";
+ for(let v=-20;v<=25;v+=10)g+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+ g+=`<line class="ax" x1="${m.l}" x2="${W-m.r}" y1="${y(0)}" y2="${y(0)}"/>`;
+ d.forEach(([yr,gv,sv],i)=>{const x0=m.l+i*cw+cw*.12;
+  g+=`<rect x="${x0}" y="${Math.min(y(gv),y(0))}" width="${bw}" height="${Math.abs(y(gv)-y(0))}" fill="${C("--t-wheat")}" stroke="#a6761f" stroke-width=".7"><title>${yr} goods: ${gv} bn</title></rect>`;
+  g+=`<rect x="${x0+bw+1}" y="${Math.min(y(sv),y(0))}" width="${bw}" height="${Math.abs(y(sv)-y(0))}" fill="${C("--s2")}"><title>${yr} services: ${sv} bn</title></rect>`;
+  if(yr%5===0)g+=`<text x="${m.l+i*cw+cw/2}" y="${h-10}" text-anchor="middle">${yr}</text>`});
+ g+=`<text x="${m.l}" y="${m.t-2}" class="lab">US$ bn</text>`;
+ $("#fig-bal").innerHTML=svg(W,h,g,"Goods and services trade balances, 2005 to 2025")})();
+
+// Fig 5 composition
+(function(){const names=["Food & farm (HS 01–24)","Fuels & minerals (25–27)","Chemicals & plastics (28–40)","Metals & gold (71–83)","Machinery & vehicles (84–89)","Other, incl. confidential HS 99"];
+ const cols=[C("--t-pasture"),"#3b3530",C("--s4"),C("--t-wheat"),C("--celeste-ink"),"#b8ad94"];
+ $("#comp-key").innerHTML=names.map((n,i)=>`<span><i style="background:${cols[i]}"></i>${n}</span>`).join("");
+ const m={l:52,r:70,t:6,b:10},rh=50,h=m.t+3*rh+m.b,x=sc(0,100,m.l,W-m.r);let g="";
+ [2004,2014,2024].forEach((yr,i)=>{const c=DATA2.comp[yr],y=m.t+i*rh+8;let acc=0;g+=`<text x="${m.l-8}" y="${y+21}" text-anchor="end" class="lab" font-weight="700">${yr}</text>`;
+  c.sh.forEach((v,k)=>{g+=`<rect x="${x(acc)}" y="${y}" width="${x(acc+v)-x(acc)}" height="32" fill="${cols[k]}" stroke="#fff" stroke-width="1"><title>${names[k]}: ${v}%</title></rect>`;if(v>=5)g+=`<text x="${(x(acc)+x(acc+v))/2}" y="${y+21}" text-anchor="middle" style="fill:${k===3||k===5?"#2a2016":"#fff"}" font-weight="700">${fmt(v,1)}</text>`;acc+=v});
+  g+=`<text x="${W-m.r+8}" y="${y+21}" class="lab">$${c.tot} bn</text>`});
+ $("#fig-comp").innerHTML=svg(W,h,g,"Export composition by product group in 2004, 2014 and 2024")})();
+
+// Fig 6 partners
+function hbars(el,rows,max,co,unit,title,w=340,lw=110,dec=1){const rh=26,m={t:26,b:6},h=m.t+rows.length*rh+m.b,x=sc(0,max,lw,w-46);let g=`<text x="0" y="16" class="lab" font-weight="700">${title}</text>`;
+ rows.forEach(([n,v],i)=>{const y=m.t+i*rh;g+=`<text x="${lw-8}" y="${y+16}" text-anchor="end">${esc(n)}</text><rect x="${lw}" y="${y+4}" width="${x(v)-lw}" height="17" fill="${co}"/><text x="${x(v)+6}" y="${y+17}" class="lab">${fmt(v,dec)}${unit}</text>`});
+ $(el).innerHTML=svg(w,h,g,title)}
+hbars("#fig-xp",DATA2.xp.top.map(r=>[r[0]==="Viet Nam"?"Vietnam":r[0],r[1]]),25,C("--t-wheat"),"%","Exports to");
+hbars("#fig-mp",DATA2.mp.top.map(r=>[r[0],r[1]]),25,C("--celeste-ink"),"%","Imports from");
+
+// gravity equation + scatter
+(function(){const G=DATA.grav;$("#grav-eq").innerHTML=`ln X<sub>j</sub> = ${G.b[0].toFixed(2)} + ${G.b[1].toFixed(3)} · ln GDP<sub>j</sub> − ${Math.abs(G.b[2]).toFixed(3)} · ln Dist<sub>j</sub><br><span style="font-family:var(--f-body);font-size:15px">Standard errors ${G.se[1]} and ${G.se[2]} · R² = ${G.r2} · N = ${G.n}</span>`;
+ const h=400,m={l:48,r:16,t:14,b:42};const pts=G.pts;const ys=pts.map(p=>p[2]);const y0=Math.floor(Math.min(...ys))-1,y1=Math.ceil(Math.max(...ys))+1;
+ const x=sc(Math.log(150),Math.log(22000),m.l,W-m.r),y=sc(y0,y1,h-m.b,m.t);let g="";
+ [200,500,1000,2000,5000,10000,20000].forEach(v=>g+=`<line class="grid" x1="${x(Math.log(v))}" x2="${x(Math.log(v))}" y1="${m.t}" y2="${h-m.b}"/><text x="${x(Math.log(v))}" y="${h-m.b+16}" text-anchor="middle">${v.toLocaleString("en-US")}</text>`);
+ for(let v=Math.ceil(y0);v<=y1;v+=2)g+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+ g+=`<text x="${(m.l+W-m.r)/2}" y="${h-6}" text-anchor="middle" class="lab">Distance from Buenos Aires, km (log scale)</text>`;
+ const lx0=Math.log(180),lx1=Math.log(20000);g+=`<line x1="${x(lx0)}" y1="${y(G.b[0]+G.b[2]*lx0)}" x2="${x(lx1)}" y2="${y(G.b[0]+G.b[2]*lx1)}" stroke="${C("--ink")}" stroke-width="1.6" stroke-dasharray="6 4"/>`;
+ const NBR=["BRA","CHL","URY","PRY","BOL"],LAB={CHN:"China",VNM:"Vietnam",USA:"USA",IND:"India",JPN:"Japan",DEU:"Germany",MYS:"Malaysia",BRA:"Brazil",CHL:"Chile",URY:"Uruguay",PRY:"Paraguay",BOL:"Bolivia"};
+ pts.forEach(([iso,n,ya,dk,v])=>{const nb=NBR.includes(iso);g+=`<circle cx="${x(Math.log(dk))}" cy="${y(ya)}" r="${nb?5.5:3.6}" fill="${nb?C("--s2"):C("--celeste-ink")}" fill-opacity="${nb?1:.55}" stroke="#fff" stroke-width=".6"><title>${esc(n)}: $${v.toLocaleString("en-US")} m, ${dk.toLocaleString("en-US")} km</title></circle>`;
+  if(LAB[iso])g+=`<text x="${x(Math.log(dk))+7}" y="${y(ya)+4}" class="lab">${LAB[iso]}</text>`});
+ g+=`<text x="${m.l}" y="${m.t-2}" class="lab">ln exports − 1.155 · ln GDP</text>`;
+ $("#fig-grav").innerHTML=svg(W,h,g,"Size-adjusted exports against distance with the fitted gravity line")})();
+
+// RCA table
+(function(){const rows=[["Oilseed meal & feed (23)",26.9,7.7,1.2,0.98],["Cereals (10)",19.3,6.6,0.16,14.8],["Vegetable oils (15)",13.7,1.7,1.2,6.1],["Meat (02)",6.7,9.3,1.9,36.3],["Oilseeds (12)",4.9,24.9,0.86,10.7],["Dairy (04)",4.0,0.21,0.36,18.5],["Inorganic chemicals, incl. lithium (28)",1.7,1.5,10.1,0.40],["Vehicles (87)",1.5,0.45,0.06,0.53],["Gold & precious metals (71)",0.99,0.31,0.43,0.15],["Mineral fuels (27)",0.74,1.3,0.15,0.02],["Ores (26)",0.28,7.4,21.2,0.00],["Machinery (84)",0.18,0.37,0.07,0.04],["Electrical machinery (85)",0.02,0.09,0.02,0.07],["Lithium carbonate (HS 283691)",24.7,0.04,170.7,null],["Frozen shrimp (HS 030617)",15.9,0.01,0.04,0.00]];
+ const bg=v=>v==null?"transparent":v>=10?"#3d7d46":v>=1?"#a9cf7e":"#efe6cc",fg=v=>v!=null&&v>=10?"#fff":"#2a2016";
+ $("#rca-table").innerHTML=`<thead><tr><th>Sector (HS)</th><th class="n">Argentina</th><th class="n">Brazil</th><th class="n">Chile</th><th class="n">Uruguay</th></tr></thead><tbody>`+rows.map(r=>`<tr><td>${r[0]}</td>`+r.slice(1).map((v,i)=>`<td class="h" style="background:${bg(v)};color:${fg(v)}${i===0?";font-weight:700":""}">${v==null?"–":v}</td>`).join("")+`</tr>`).join("")+`</tbody>`})();
+
+hbars("#fig-land",[["Argentina",1.03],["Uruguay",0.64],["Brazil",0.26],["Latin America",0.24],["World",0.17],["Chile",0.07]],1.2,C("--t-wheat"),"","Hectares per person",W,130,2);
+{const CH={"84":"Machinery","87":"Vehicles & parts","85":"Electrical machinery","27":"Fuels","12":"Oilseeds","29":"Organic chemicals","39":"Plastics","30":"Pharmaceuticals","90":"Optical & medical instruments"};
+ hbars("#fig-mchap",DATA2.mchap.top.map(([c,v])=>[`${CH[c]||"HS "+c} (${c})`,v]),18,C("--celeste-ink"),"%","Share of goods imports",W,220);}
+
+// FDI
+(function(){const d=DATA.fdi,h=280,m={l:40,r:10,t:14,b:30};const n=d.length,cw=(W-m.l-m.r)/n;const y=sc(0,4.5,h-m.b,m.t);let g="";
+ for(let v=0;v<=4;v+=1)g+=`<line class="grid" x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+ d.forEach(([yr,fi],i)=>{g+=`<rect x="${m.l+i*cw+cw*.18}" y="${y(Math.max(fi,0))}" width="${cw*.64}" height="${Math.abs(y(fi)-y(0))}" fill="${C("--celeste")}" stroke="${C("--celeste-ink")}" stroke-width=".7"><title>${yr} inflows: ${fi}% of GDP</title></rect>`;if(yr%5===0)g+=`<text x="${m.l+i*cw+cw/2}" y="${h-10}" text-anchor="middle">${yr}</text>`});
+ const pts=d.map(([yr,fi,fo],i)=>[m.l+i*cw+cw/2,y(fo)]);g+=`<path d="M${pts.join("L")}" fill="none" stroke="${C("--s2")}" stroke-width="2.4"/>`+pts.map((p,i)=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="${C("--s2")}"><title>${d[i][0]} outflows: ${d[i][2]}% of GDP</title></circle>`).join("");
+ g+=`<text x="${m.l}" y="${m.t-2}" class="lab">% of GDP</text>`;
+ $("#fig-fdi").innerHTML=svg(W,h,g,"FDI inflows and outflows as a share of GDP, 2005 to 2025")})();
+hbars("#fig-orig",[["United States",23.9],["Spain",18.3],["Netherlands*",14.6],["Brazil",9.7],["Switzerland*",7.1],["Uruguay*",6.1],["United Kingdom",5.6],["France",4.5]],30,C("--celeste-ink"),"","US$ billion, total 127.6",360,110);
+hbars("#fig-sect",[["Manufacturing",49.2],["Mining, oil & gas",29.1],["Wholesale & retail",14.3],["Info & comms",9.2],["Banks",6.6],["All other",19.2]],60,C("--t-wheat"),"","US$ billion",360,120);
+
+// learning-curve widget
+(function(){const la=$("#la"),lb=$("#lb");
+ function draw(){const A=+la.value,B=+lb.value;$("#lao").textContent=A.toFixed(1);$("#lbo").textContent=B;
+  const h=300,w=480,m={l:40,r:16,t:16,b:36},T=66;const x=sc(1,T,m.l,w-m.r),y=sc(0,6,h-m.b,m.t);let g="";
+  for(let v=0;v<=6;v+=1)g+=`<line class="grid" x1="${m.l}" x2="${w-m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l-8}" y="${y(v)+4}" text-anchor="end">${v}</text>`;
+  [1972,1990,2010,2026,2038].forEach(yr=>{const t=yr-1971;g+=`<text x="${x(t)}" y="${h-m.b+16}" text-anchor="middle">${yr}</text>`});
+  g+=`<rect x="${x(2026-1971)}" y="${m.t}" width="${x(T)-x(2026-1971)}" height="${h-m.b-m.t}" fill="${C("--parch-2")}" opacity=".6"/><text x="${x(2026-1971)+4}" y="${m.t+12}" class="lab">today</text>`;
+  g+=`<line x1="${x(1)}" x2="${x(T)}" y1="${y(2)}" y2="${y(2)}" stroke="${C("--s2")}" stroke-width="2.4"/><text x="${x(T)-2}" y="${y(2)-6}" text-anchor="end" style="fill:${C("--s2")}">Foreign = 2</text>`;
+  let p="";for(let t=1;t<=T;t+=.25){const v=Math.max(0,A-B/t);p+=(p?"L":"M")+x(t).toFixed(1)+" "+y(v).toFixed(1)}
+  g+=`<path d="${p}" fill="none" stroke="${C("--celeste-ink")}" stroke-width="3"/><text x="${x(T)-2}" y="${y(Math.max(0,A-B/T))-8}" text-anchor="end" class="lab" font-weight="700">Home H(t)</text>`;
+  let v;
+  if(A>2){const ts=B/(A-2),yr=1971+ts;if(ts<=T){g+=`<line x1="${x(ts)}" x2="${x(ts)}" y1="${y(0)}" y2="${y(2)}" stroke="${C("--ink")}" stroke-dasharray="3 3"/><circle cx="${x(ts)}" cy="${y(2)}" r="6" fill="${C("--gold")}" stroke="${C("--ink")}"/><text x="${x(ts)+8}" y="${y(2)+20}" class="lab" font-weight="700">t* ≈ ${Math.round(yr)}</text>`}
+   v=yr<=2026?`Home overtakes Foreign around <b>${Math.round(yr)}</b> (t* = ${ts.toFixed(1)} years). Protection should have ended then, and the island should be exporting today.`:`Home overtakes Foreign only around <b>${Math.round(yr)}</b>. Even 54 years of protection have not been enough.`}
+  else v=`Home never overtakes Foreign: <b>there is no crossover date</b>. Protection keeps an uncompetitive industry alive and consumers pay for it. This is what the export data imply.`;
+  $("#verdict").innerHTML=v;
+  $("#fig-learn").innerHTML=svg(w,h,g,"Learning curve for Home electronics productivity against Foreign")}
+ la.addEventListener("input",draw);lb.addEventListener("input",draw);
+ document.querySelectorAll(".presets button").forEach(b=>b.addEventListener("click",()=>{la.value=b.dataset.a;lb.value=b.dataset.b;draw()}));
+ draw()})();
+
+/* ---------- toc highlight ---------- */
+const links=[...document.querySelectorAll("#toc a")];
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle("cur",a.getAttribute("href")==="#"+e.target.id))}})},{rootMargin:"-30% 0px -60% 0px"});
+document.querySelectorAll(".chapter").forEach(c=>io.observe(c));
+})();
+</script>
