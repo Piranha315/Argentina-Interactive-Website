@@ -774,7 +774,7 @@ const R=[
   stats:[["Reserves","USGS MCS 2026","4.4 Mt Li"],["Lithium carbonate exports, 2024","UN Comtrade, HS 283691","$406 m"],["RCA, lithium carbonate, 2023","Team calc. (Chile: 170.7)","24.7"],["POSCO Sal de Oro II approved under RIGI","Min. of Economy Res. 1157/2026","Jul 2026"]],
   note:"<b>Heckscher-Ohlin at altitude.</b> The endowment is brine in high-Andean salt flats. Argentina sits far upstream in the battery chain, selling carbonate that is refined elsewhere. Chile's RCA is about seven times larger, so Argentina is the late entrant.",
   go:"#ch-gvc",cta:"See value-chain position"},
- {id:"soy",name:"Soymeal & soy oil",short:"Soy complex",region:"Gran Rosario, on the Paraná",lon:-60.7,lat:-32.9,c1:"#5d6a22",c2:"#b9c46a",
+ {id:"soy",name:"Soymeal & soy oil",short:"Soy complex",region:"Gran Rosario, on the Paraná",lon:-61.55,lat:-32.3,c1:"#5d6a22",c2:"#b9c46a",
   icon:"M5 19C5 11 11 5 19 5c0 8-6 14-14 14zM5 19l8-8",
   big:"No. 1",bigLabel:"world exporter of soybean meal and soybean oil (USDA Foreign Agricultural Service)",
   stats:[["Oilcake & meal (HS 23), 2024","UN Comtrade","$8.4 bn"],["Vegetable oils (HS 15), 2024","UN Comtrade","$7.2 bn"],["RCA, HS 23 / HS 15, 2023","Team calc.","26.9 / 13.7"],["Soybean export duty before latest cuts","Decree 423/2026 schedules cuts to 2028","24%"]],
@@ -792,13 +792,13 @@ const R=[
   stats:[["RCA in meat, 2023","Team calc. (Uruguay: 36.3)","6.7"],["Largest beef buyer","USDA FAS, Livestock and Products Annual","China"],["Distance, Buenos Aires to Beijing","Team calc.","19,300 km"]],
   note:"<b>Gravity has two sides.</b> China is about as far from Buenos Aires as a country can be, yet it buys most of Argentina's beef. Distance cuts trade, but China's very large GDP more than offsets it.",
   go:"#ch-trade",cta:"See the gravity model"},
- {id:"wine",name:"Wine",short:"Wine",region:"Cuyo oases: Mendoza, San Juan",lon:-68.7,lat:-33.3,c1:"#5e1f3e",c2:"#b05c86",
+ {id:"wine",name:"Wine",short:"Wine",region:"Cuyo oases: Mendoza, San Juan",lon:-69.1,lat:-33.95,c1:"#5e1f3e",c2:"#b05c86",
   icon:"M8 3h8l-.6 6a3.4 3.4 0 0 1-6.8 0zM12 13v7M8.5 21h7",
   big:"$686 m",bigLabel:"wine exports in 2024 (UN Comtrade, HS 2204)",
   stats:[["Bottled wine (under 2 L), HS 220421","UN Comtrade, 2024","$625 m"],["Volume shipped, all wine","UN Comtrade, 2024","198 m kg"]],
   note:"<b>Know-how as comparative advantage (Ch. 8).</b> Irrigated oases at the foot of the Andes. Quality and reputation are learned over decades, and over 90% of export value now leaves in bottles rather than in bulk.",
   go:"#ch-case",cta:"See the Ch. 8 case study"},
- {id:"auto",name:"Motor vehicles",short:"Autos",region:"Córdoba and Greater Buenos Aires",lon:-64.2,lat:-31.4,c1:"#26394a",c2:"#7f9bb2",
+ {id:"auto",name:"Motor vehicles",short:"Autos",region:"Córdoba and Greater Buenos Aires",lon:-63.0,lat:-30.85,c1:"#26394a",c2:"#7f9bb2",
   icon:"M3 16v-3l2-5h14l2 5v3zM6 16v2M18 16v2M7.5 12.5h.01M16.5 12.5h.01M3 13h18",
   big:"$7.8 bn",bigLabel:"vehicle and parts exports in 2024, 9.8% of goods exports (UN Comtrade, HS 87)",
   stats:[["RCA, vehicles, 2023","Team calc. (Brazil: 0.45)","1.50"],["FDI inflow to automakers, Q4 2023","BCRA, IED report","$1.54 bn"],["Brazil's share of all exports","UN Comtrade, 2024","17.1%"]],
@@ -1064,7 +1064,7 @@ s+=T("mregion",-66.4,-25.6,"La Puna",17)+T("mregion",-61.4,-26.1,"Gran Chaco",19
  c+=`<path d="M0-46 7-7 0 0-7-7z" fill="#F3D88E"/><path d="M0 46 7 7 0 0-7 7z" fill="#e7f4f8" fill-opacity=".8"/><path d="M-46 0-7-7 0 0-7 7zM46 0 7-7 0 0 7 7z" fill="#e7f4f8" fill-opacity=".6"/><text y="-52" text-anchor="middle" class="msea" font-size="16" font-style="normal">N</text></g>`;s+=c;
  const [sx0,sy0]=P(-53.2,-52.8), kmPx=GEO.sx/111.2*500; s+=`<g aria-hidden="true"><path d="M${sx0-kmPx/2} ${sy0}h${kmPx}" stroke="#e7f4f8" stroke-width="3"/><path d="M${sx0-kmPx/2} ${sy0}h${kmPx/2}" stroke="#123" stroke-width="3" stroke-opacity=".5"/><text class="msea" x="${sx0}" y="${sy0+20}" text-anchor="middle" font-size="14" font-style="normal">500 km</text></g>`;}
 // cities
-const CITY=[["Córdoba",-64.18,-31.42,0,"end",-30,-12],["Rosario",-60.65,-32.95,0,"start",28,-14],["Mendoza",-68.84,-32.89,0,"start",14,-8],["Salta",-65.41,-24.78,0,"start",12,-6],["Tucumán",-65.2,-26.82,0,"start",12,5],["Neuquén",-68.06,-38.95,0,"start",12,12],["Bahía Blanca",-62.27,-38.72,0,"start",12,5],["Comodoro Rivadavia",-67.48,-45.86,0,"end",-12,-8],["Bariloche",-71.3,-41.13,0,"start",12,5],["El Calafate",-72.27,-50.34,0,"start",14,16],["Ushuaia",-68.3,-54.8,0,"end",-12,16],["Iguazú",-54.44,-25.69,0,"end",-16,14]];
+const CITY=[["Córdoba",-64.18,-31.42,0,"end",-12,-6],["Rosario",-60.65,-32.95,0,"start",12,-4],["Mendoza",-68.84,-32.89,0,"start",14,-8],["Salta",-65.41,-24.78,0,"start",12,-6],["Tucumán",-65.2,-26.82,0,"start",12,5],["Neuquén",-68.06,-38.95,0,"start",12,12],["Bahía Blanca",-62.27,-38.72,0,"start",12,5],["Comodoro Rivadavia",-67.48,-45.86,0,"end",-12,-8],["Bariloche",-71.3,-41.13,0,"start",12,5],["El Calafate",-72.27,-50.34,0,"start",14,16],["Ushuaia",-68.3,-54.8,0,"end",-12,16],["Iguazú",-54.44,-25.69,0,"end",-16,14]];
 let cities="";
 for(const [n,lo,la,cap,anc,dx,dy] of CITY){const [x,y]=P(lo,la);
   const ci=CITIES.find(c=>c.name===n);
