@@ -9,7 +9,7 @@ An illustrated, interactive map of Argentina's economy, built for the EC 391 (In
 ## What's on the map
 
 - **Resources:** shale oil and gas (Vaca Muerta), lithium, soymeal and soy oil, wheat and maize, beef, wine, motor vehicles, gold and silver, Patagonian shrimp, and Tierra del Fuego electronics. Each opens a panel with the headline figure, sourced statistics and the course model it illustrates.
-- **Places and cities:** Buenos Aires (capital), the Malvinas / Falkland Islands dispute, and 12 cities with province census data and their role in the trade story.
+- **Highlights and cities:** Buenos Aires (capital), the Malvinas / Falkland Islands dispute, the sea-lane ship covering Argentina's balancing act between China and the US, and 12 cities with province census data and their role in the trade story.
 - **Neighbours:** Brazil, Chile, Uruguay, Paraguay and Bolivia, with 2024 bilateral trade.
 - **Navigation:** scroll or pinch to zoom, drag or two-finger swipe to move, a minimap while zoomed, a full-map mode, and keyboard controls (+ / − / arrows / 0). Below 1,180 px wide, details open in a bottom sheet over the map.
 
